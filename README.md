@@ -7,8 +7,8 @@ This project implements popular cellular automata gas models in `Python`
 * FHP II
 * FHP III
 
-> [!NOTE]
-> Work in progress.
+> [!WARNING]
+> Work in progress...
 
 [//]: # (## Installation)
 
