@@ -2,7 +2,7 @@ import secrets
 import click
 from lgca.automata import Hpp
 from lgca.display import SquareGrid
-from lgca.utils.initial_shape import solid_square, frame
+from lgca.utils.initial_shape import solid_square, frame, solid_rectangle
 
 
 @click.command()
@@ -60,7 +60,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 1111:#FFFFFF
             """
 
-            colors = [0] * (2**7 + 16)
+            colors = [0] * (2 ** 7 + 16)
 
             for row in col_palette.strip().split("\n"):
                 dat = row.strip()
@@ -140,14 +140,14 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                         for _ in range(height)
                     ]
 
-                    # frame(grid=input_grid, value=0b1000_0000, size=tile_size)
-                    # solid_rectangle(
-                    #     grid=input_grid,
-                    #     value=0b1000_0000,
-                    #     height=height // 3,
-                    #     width=4,
-                    #     left_offset=width // 8 + 2,
-                    # )
+                    frame(grid=input_grid, value=0b1000_0000, size=tile_size)
+                    solid_rectangle(
+                        grid=input_grid,
+                        value=0b1000_0000,
+                        height=height // 3,
+                        width=4,
+                        left_offset=width // 8 + 2,
+                    )
 
                 case "test":
                     fps = 3
