@@ -1,6 +1,6 @@
 # Lattice Gas Cellular Automata
 
-This project contains `Python` implementation of the popular *Lattice Gas Cellular Automata*.
+This project contains `Python` implementation of the popular *Lattice Gas Cellular Automata*, listed below.
 
 * HPP
 * FHP I
