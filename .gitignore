@@ -146,3 +146,4 @@ coverage-reports/
 # Additional folders
 /logs/
 /tmp/
+/run.py
