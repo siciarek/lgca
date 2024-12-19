@@ -7,38 +7,63 @@ This project implements popular cellular automata gas models in `Python`
 * FHP II
 * FHP III
 
-## Installation
+[//]: # (## Installation)
 
-The application is available in `PyPI` package repository and can be installed with `pip`, just run:
+[//]: # ()
+[//]: # (The application is available in `PyPI` package repository and can be installed with `pip`)
 
-```bash
-pip install lgca
-```
+[//]: # ()
+[//]: # (```bash)
 
-## Usage
+[//]: # (pip install lgca)
 
-To get some information about the application just run
+[//]: # (```)
 
-```bash
-lgca --help
-```
+[//]: # ()
+[//]: # (## Usage)
 
-You should see something like below
+[//]: # ()
+[//]: # (To get some information about the application just run)
 
-```text
-Usage: lgca [OPTIONS]
+[//]: # ()
+[//]: # (```bash)
 
-  Lattice Gas Cellular Automata * HPP * FHP I * FHP II * FHP III
+[//]: # (lgca --help)
 
-Options:
-  -c, --cell INTEGER RANGE        Cell content binary definition.  [0<=x<=15]
-  -n, --model-name [HPP|FHPI|FHPII|FHPIII]
-  -w, --width INTEGER             Lattice window width.  [default: 300]
-  -h, --height INTEGER            Lattice window height.  [default: 200]
-  -s, --steps INTEGER             Number of steps.  [default: -1]
-  -r, --run                       Run immediately.
-  -p, --pattern [wiki|random|alt|single|obstacle|test]
-                                  Select initial state pattern.  [default:
-                                  wiki]
-  --help                          Show this message and exit.
-```
+[//]: # (```)
+
+[//]: # ()
+[//]: # (You should see something like below)
+
+[//]: # ()
+[//]: # (```text)
+
+[//]: # (Usage: lgca [OPTIONS])
+
+[//]: # ()
+[//]: # (  Lattice Gas Cellular Automata * HPP * FHP I * FHP II * FHP III)
+
+[//]: # ()
+[//]: # (Options:)
+
+[//]: # (  -c, --cell INTEGER RANGE        Cell content binary definition.  [0<=x<=15])
+
+[//]: # (  -n, --model-name [HPP|FHPI|FHPII|FHPIII])
+
+[//]: # (  -w, --width INTEGER             Lattice window width.  [default: 300])
+
+[//]: # (  -h, --height INTEGER            Lattice window height.  [default: 200])
+
+[//]: # (  -s, --steps INTEGER             Number of steps.  [default: -1])
+
+[//]: # (  -r, --run                       Run immediately.)
+
+[//]: # (  -p, --pattern [wiki|random|alt|single|obstacle|test])
+
+[//]: # (                                  Select initial state pattern.  [default:)
+
+[//]: # (                                  wiki])
+
+[//]: # (  --help                          Show this message and exit.)
+
+[//]: # (```)
