@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+# (C) 2023 Silent Eight Pte. Ltd. or its affiliates. All rights reserved.
+#
+# This file is subject to the intellectual property rights of Silent Eight Pte. Ltd. or its
+# affiliates. Any use, transmission, redistribution, or copying by any means, in whole or in
+# part, with or without modification, is prohibited without the prior written consent of
+# Silent Eight.
+#
+# Some portions contained in this file may be the copyrighted property of others or be subject
+# to open-source licenses; acknowledgment of those copyrights is hereby given.
+# All such material is used with the permission of the owner.
+
+# Project information
+site_name: lgca
+site_url: https://silenteight.github.io/lgca
+site_description: Lattice gas automata implemented in Python.
+
+# Repository
+repo_name: silenteight/lgca
+repo_url: https://github.com/silenteight/lgca
+
+# Copyright
+copyright: |
+  &copy; 2023 <a href="https://silenteight.com"  target="_blank" rel="noopener">Silent Eight</a>
+
+# Configuration
+theme:
+  name: material
+  font:
+    text: Roboto
+  features:
+#    - content.action.edit
+  - content.action.view
+  - content.code.annotation
+  - content.code.copy
+  - content.tabs.link
+  - content.tooltips
+  - navigation.footer
+  - navigation.indexes
+  - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.sections
+  - navigation.tracking
+  - navigation.top
+  - search.suggest
+  - search.highlight
+  - toc.follow
+#    - toc.integrate
+  language: en
+  palette:
+  - scheme: default
+    toggle:
+      icon: material/toggle-switch-off-outline
+      name: Switch to dark mode
+    primary: deep purple
+    accent: purple
+  - scheme: slate
+    toggle:
+      icon: material/toggle-switch
+      name: Switch to light mode
+    primary: deep purple
+    accent: purple
+
+# Customization
+extra:
+  social:
+  - icon: fontawesome/brands/github
+    link: https://github.com/SilentEight/lgca
+
+markdown_extensions:
+- pymdownx.highlight:
+    anchor_linenums: true
+    line_spans: __span
+    pygments_lang_class: true
+- pymdownx.inlinehilite
+- pymdownx.snippets
+- admonition
+- pymdownx.arithmatex:
+    generic: true
+- footnotes
+- pymdownx.details
+- pymdownx.superfences
+- pymdownx.mark
+- def_list
+- attr_list
+- pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+# Page tree
+nav:
+- lgca: index.md
+- Change Log: change-log.md

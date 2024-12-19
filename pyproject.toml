@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools >= 69.0.3", "wheel >= 0.42.0", "setuptools-scm >= 8.0.4"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lgca"
+description = "Lattice gas automata implemented in Python."
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">=3.9,<3.13"
+license = { file = "LICENSE" }
+authors = [{ name = "Jacek Siciarek", email = "siciarek@gmail.com" }]
+maintainers = [{ name = "Jacek Siciarek", email = "siciarek@gmail.com" }]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "pygame~=2.5.2",
+    "pyaml~=24.12.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/siciarek/lgca"
+Documentation = "https://github.com/siciarek/lgca/tree/master/docs"
+Repository = "https://github.com/siciarek/lgca"
+Changelog = "https://github.com/siciarek/lgca/blob/master/docs/change-log.md"
+
+[project.optional-dependencies]
+doc = [
+    "mkdocs~=1.5.3",
+    "mkdocs-material~=9.5.17",
+    "mkdocs-material-extensions~=1.3.1",
+    "pip-tools~=7.4.1",
+]
+test = [
+    "pytest~=8.0.2",
+    "pytest-xdist~=3.5.0",
+    "pytest-cov~=4.1.0",
+    "pytest-mock~=3.12.0",
+    "tox~=4.14.2",
+]
+analysis = [
+    "radon~=6.0.1",
+    "ruff~=0.3.4",
+    "pre_commit~=3.6.2",
+    "bandit[toml]~=1.7.8",
+    "licensecheck~=2024.2",
+]
+dev = [
+    "lgca[test]",
+    "lgca[analysis]",
+    "lgca[doc]",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lgca*"]
+exclude = ["tests*", "bin*", "build*", "docs*", "tmp*"]
+
+[tool.setuptools.package-data]
+config = ["*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "lgca.__version__" }
+
+[project.scripts]
+lgca = "lgca.entrypoints:lgca.main"
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "--exitfirst --verbose -p no:cacheprovider --capture=no --cov-report=xml:coverage-reports/app.coverage-report.xml --cov-report=term-missing:skip-covered --cov-report=html --cov=lgca"
+testpaths = [
+    "tests",
+]
+pythonpath = [
+    "."
+]
+
+[tool.bandit]
+exclude_dirs = [".venv", "venv", "tmp", "logs", "build", "tests"]
+tests = []
+skips = []
+
+[tool.licensecheck]
+using = "requirements:docs/requirements.txt;docs/requirements-dev.txt"
+format = "simple"  # Output format. one of: json, markdown, html, csv, ansi, simple. default=simple
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = py{39,310,311,312}
+[testenv]
+deps:
+    .[dev]
+commands =
+    pytest
+"""
