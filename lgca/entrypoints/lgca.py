@@ -59,7 +59,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
     [ ] FHP II
     [ ] FHP III
     """
-
+    Grid = None
     rand_choice = secrets.choice
     rand_uniform = secrets.SystemRandom().random
 
@@ -132,17 +132,10 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 val = val.lstrip("#")
                 colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
                 set_up_colors(int(key, 2), colors[int(key, 2)], colors)
+
             automaton = FhpOne(grid=input_grid)
 
-            HexagonalGrid(
-                title=f"LGCA {automaton.name}",
-                automaton=automaton,
-                tile_size=tile_size,
-                colors=tuple(colors),
-                max_iteration=steps,
-                run=run,
-                fps=fps,
-            ).mainloop()
+            cls = HexagonalGrid
 
         case "HPP":
 
@@ -246,15 +239,18 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
 
             automaton = Hpp(grid=input_grid)
 
-            SquareGrid(
-                title=f"LGCA {automaton.name}",
-                automaton=automaton,
-                tile_size=tile_size,
-                colors=tuple(colors),
-                max_iteration=steps,
-                run=run,
-                fps=fps,
-            ).mainloop()
+            Grid = SquareGrid
 
         case _:
             raise click.ClickException(f"{model_name=} is not supported yet.")
+
+
+        Grid(
+            title=f"LGCA {automaton.name}",
+            automaton=automaton,
+            tile_size=tile_size,
+            colors=tuple(colors),
+            max_iteration=steps,
+            run=run,
+            fps=fps,
+        ).mainloop()
