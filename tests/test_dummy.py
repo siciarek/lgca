@@ -1,3 +1,4 @@
+import os
 import secrets
 import yaml
 
@@ -86,4 +87,5 @@ def test_hex_lattice():
     )
     assert isinstance(board, HexagonalGrid)
 
-    board.mainloop()
+    if os.getenv("RUN_GUI"):
+        board.mainloop()
