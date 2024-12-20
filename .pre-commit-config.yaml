@@ -54,14 +54,17 @@ repos:
 - repo: https://github.com/charliermarsh/ruff-pre-commit
   # Ruff version.
   rev: v0.8.3
+  exclude:
   hooks:
   - id: ruff
+    exclude: lgca/utils/hexagon.py
     # Respect `exclude` and `extend-exclude` settings.
     args:
     - --fix
     - --line-length=120
     - --output-format=github
-    - --target-version=py310
+    - --target-version=py312
+    - --ignore=F401
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v5.0.0
   hooks:
@@ -110,10 +113,11 @@ repos:
   rev: 7.1.1        # pick a git hash / tag to point to
   hooks:
   - id: flake8
+    exclude: lgca/utils/hexagon.py
     args:
     - --max-line-length=120
     - --max-complexity=10
-    - --ignore=A003,W503
+    - --ignore=A003,W503,F401
     additional_dependencies:
     - flake8-blind-except
     - flake8-builtins

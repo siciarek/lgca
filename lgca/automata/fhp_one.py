@@ -4,7 +4,7 @@ from lgca.automata import Lgca
 
 class FhpOne(Lgca):
     name: str = "fhpi"
-    masks: tuple[int] = (
+    masks: tuple[int, int, int, int, int, int] = (
         0b001000,
         0b010000,
         0b100000,

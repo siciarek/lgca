@@ -94,7 +94,7 @@ def first_row(grid: list, value: int, pattern: list):
             arbitrary_single_point(grid=grid, row=0, col=col, value=randint(0, value))
 
 
-def random(grid: list, number: int = 0, value: int = 1):
+def random(grid: list, value: int = 1):
     params = get_info(grid=grid)
     for row in range(params["height"]):
         for col in range(params["width"]):
