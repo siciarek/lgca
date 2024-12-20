@@ -1,8 +1,10 @@
 import random
 from lgca.utils.config_loader import get_config
+from abc import ABC, abstractmethod
 
 
-class Lgca:
+class Lgca(ABC):
+    OBSTACLE_BIT: int = 0b1000_0000
 
     def __init__(self, grid):
         self.grid: list[list[int]] = grid
@@ -10,7 +12,7 @@ class Lgca:
         self.width: int = len(self.grid[0])
         self.step: int = 0
         self.temp_grid = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.collision_table = get_config(self.name)
+        self.collision_table = get_config(self.name.replace(" ", "").lower())
 
     def __next__(self):
         self.collision()
@@ -18,6 +20,10 @@ class Lgca:
         self.step += 1
 
         return self.grid
+
+    @abstractmethod
+    def get_neighborhood(self, col):
+        return []
 
     def collision(self):
         for row in range(self.height):
@@ -27,3 +33,17 @@ class Lgca:
                     result = random.choice(result)
 
                 self.temp_grid[row][col] = result
+
+    def free_translation(self) -> None:
+        for row in range(self.height):
+            for col in range(self.width):
+                new_val = self.temp_grid[row][col] & self.OBSTACLE_BIT
+
+                for idx, (row_off, col_off) in enumerate(self.get_neighborhood(col=col)):
+                    # Torus mode:
+                    n_row = (row + row_off + self.height) % self.height
+                    n_col = (col + col_off + self.width) % self.width
+
+                    new_val |= self.temp_grid[n_row][n_col] & self.masks[idx]
+
+                self.grid[row][col] = new_val

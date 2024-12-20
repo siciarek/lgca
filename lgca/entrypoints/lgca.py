@@ -7,6 +7,30 @@ from lgca.utils.initial_shape import solid_square, frame, solid_rectangle
 from lgca import settings
 
 
+def set_up_colors(binary, hexa, colors):
+    if not hexa:
+        return
+
+    if isinstance(hexa, str):
+        hexa = hexa.lstrip("#")
+        color = (int(hexa[:2], 16), int(hexa[2:4], 16), int(hexa[4:], 16))
+        binary_num = int(binary, 2)
+        colors[binary_num] = color
+    else:
+        binary_num = binary
+        color = hexa
+
+    obst_bin_num = binary_num | 0b1000_0000
+    if obst_bin_num >= len(colors):
+        colors += [0] * 0b1111_11111
+
+    colors[obst_bin_num] = (
+        0xAA,
+        color[0],
+        color[0],
+    )
+
+
 @click.command()
 @click.option("-v", "--value", type=click.IntRange(0, 255), default=15, help="Content value.")
 @click.option(
@@ -36,6 +60,9 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
     [ ] FHP III
     """
 
+    rand_choice = secrets.choice
+    rand_uniform = secrets.SystemRandom().random
+
     match model_name.upper():
         case "FHPI":
             match pattern:
@@ -47,6 +74,24 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 case "random":
                     width, height, tile_size, fps = 400, 300, 2, -1
                     input_grid = [[secrets.choice(range(64)) for _ in range(width)] for _ in range(height)]
+                case "obstacle":
+                    width, height, tile_size, fps = 400, 300, 2, -1
+                    input_grid = [
+                        [
+                            rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
+                            for col in range(width)
+                        ]
+                        for _ in range(height)
+                    ]
+
+                    frame(grid=input_grid, value=0b1000_0000, size=tile_size)
+                    solid_rectangle(
+                        grid=input_grid,
+                        value=0b1000_0000,
+                        height=height // 3,
+                        width=4,
+                        left_offset=width // 8 + 2,
+                    )
                 case "single":
                     width, height, tile_size, fps = 17, 18, 64, 4
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -54,7 +99,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
 
                     input_grid[row][col] = value
                 case "test":
-                    width, height, tile_size, fps = 18, 17, 64, 4
+                    width, height, tile_size, fps = 19, 16, 64, 4
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
                     row, col = height // 2, width // 2
 
@@ -67,28 +112,14 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                         (0b010000, 2, 3),
                     )
 
+                    input_grid[row][col] = 0b1000_0000
+
                     for mask, row_off, col_off in offsets:
                         if value & mask:
                             input_grid[row + row_off][col + col_off] = mask
 
-                    # input_grid[row][col] = 0b000001
-                    # input_grid[row][col] = 0b000010
-                    # input_grid[row][col] = 0b000100
-                    # input_grid[row][col] = 0b001000
-                    # input_grid[row][col] = 0b010000
-                    # input_grid[row][col] = 0b100000
+                    frame(grid=input_grid, value=0b1000_0000)
 
-                    # input_grid[row][col] = 0b111111
-
-                    # input_grid[row - 3][col] = 0b000100  # E
-                    # input_grid[row + 3][col] = 0b100000  # S
-
-                    # input_grid[row + 2][col - 3] = 0b000001  # NE
-                    # input_grid[row - 1][col + 3] = 0b001000  # SW
-
-                    # input_grid[row - 1][col - 3] = 0b000010  # SE
-                    # input_grid[row + 2][col + 3] = 0b010000  # NW
-                    #
                     # for x in range(0, 12, 3):
                     #     row, col = 1 + x, round(width / 2) + 1
                     #     input_grid[row][col] = 1
@@ -100,11 +131,11 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 "fhpi"].items():
                 val = val.lstrip("#")
                 colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
-
+                set_up_colors(int(key, 2), colors[int(key, 2)], colors)
             automaton = FhpOne(grid=input_grid)
 
             HexagonalGrid(
-                title=f"LGCA {model_name}",
+                title=f"LGCA {automaton.name}",
                 automaton=automaton,
                 tile_size=tile_size,
                 colors=tuple(colors),
@@ -146,27 +177,11 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                     continue
 
                 binary, hexa = row.strip().split(":")
-
-                if not hexa:
-                    continue
-
-                hexa = hexa.lstrip("#")
-                color = (int(hexa[:2], 16), int(hexa[2:4], 16), int(hexa[4:], 16))
-                binary_num = int(binary, 2)
-                colors[binary_num] = color
-                obst_bin_num = binary_num | 0b1000_0000
-                colors[obst_bin_num] = (
-                    0xAA,
-                    color[0],
-                    color[0],
-                )
+                set_up_colors(binary=binary, hexa=hexa, colors=colors)
 
             tile_size = 2
             fps = -1
             input_grid = [[0 for _ in range(width)] for _ in range(height)]
-
-            rand_choice = secrets.choice
-            rand_uniform = secrets.SystemRandom().random
 
             match pattern:
                 case "wiki":
@@ -232,7 +247,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
             automaton = Hpp(grid=input_grid)
 
             SquareGrid(
-                title=f"LGCA {model_name}",
+                title=f"LGCA {automaton.name}",
                 automaton=automaton,
                 tile_size=tile_size,
                 colors=tuple(colors),
