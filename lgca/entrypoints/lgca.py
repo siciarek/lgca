@@ -1,12 +1,14 @@
 import secrets
 import click
-from lgca.automata import Hpp
-from lgca.display import SquareGrid
+import yaml
+from lgca.automata import Hpp, FhpOne
+from lgca.display import SquareGrid, HexagonalGrid
 from lgca.utils.initial_shape import solid_square, frame, solid_rectangle
+from lgca import settings
 
 
 @click.command()
-@click.option("-c", "--cell", type=click.IntRange(0, 15), default=15, help="Cell content binary definition.")
+@click.option("-v", "--value", type=click.IntRange(0, 255), default=15, help="Content value.")
 @click.option(
     "-n",
     "--model-name",
@@ -25,16 +27,92 @@ from lgca.utils.initial_shape import solid_square, frame, solid_rectangle
     show_default=True,
     help="Select initial state pattern.",
 )
-def main(width: int, height: int, model_name: str, steps: int, run: bool, pattern: str, cell: int):
+def main(width: int, height: int, model_name: str, steps: int, run: bool, pattern: str, value: int):
     """
     Lattice Gas Cellular Automata
     [X] HPP
-    [ ] FHP I
+    [X] FHP I
     [ ] FHP II
     [ ] FHP III
     """
 
     match model_name.upper():
+        case "FHPI":
+            match pattern:
+                case "wiki":
+                    width, height, tile_size, fps = 300, 200, 2, -1
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+
+                    solid_square(input_grid, height // 2, 0b111111)
+                case "random":
+                    width, height, tile_size, fps = 400, 300, 2, -1
+                    input_grid = [[secrets.choice(range(64)) for _ in range(width)] for _ in range(height)]
+                case "single":
+                    width, height, tile_size, fps = 17, 18, 64, 4
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    row, col = height // 2, width // 2
+
+                    input_grid[row][col] = value
+                case "test":
+                    width, height, tile_size, fps = 18, 17, 64, 4
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    row, col = height // 2, width // 2
+
+                    offsets = (
+                        (0b000100, -3, 0),
+                        (0b100000, 3, 0),
+                        (0b000001, 2, -3),
+                        (0b001000, -1, 3),
+                        (0b000010, -1, -3),
+                        (0b010000, 2, 3),
+                    )
+
+                    for mask, row_off, col_off in offsets:
+                        if value & mask:
+                            input_grid[row + row_off][col + col_off] = mask
+
+                    # input_grid[row][col] = 0b000001
+                    # input_grid[row][col] = 0b000010
+                    # input_grid[row][col] = 0b000100
+                    # input_grid[row][col] = 0b001000
+                    # input_grid[row][col] = 0b010000
+                    # input_grid[row][col] = 0b100000
+
+                    # input_grid[row][col] = 0b111111
+
+                    # input_grid[row - 3][col] = 0b000100  # E
+                    # input_grid[row + 3][col] = 0b100000  # S
+
+                    # input_grid[row + 2][col - 3] = 0b000001  # NE
+                    # input_grid[row - 1][col + 3] = 0b001000  # SW
+
+                    # input_grid[row - 1][col - 3] = 0b000010  # SE
+                    # input_grid[row + 2][col + 3] = 0b010000  # NW
+                    #
+                    # for x in range(0, 12, 3):
+                    #     row, col = 1 + x, round(width / 2) + 1
+                    #     input_grid[row][col] = 1
+                    #     for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
+                    #         input_grid[row + row_off][col + col_off] = 3
+
+            colors = [None] * 64
+            for key, val in yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / "colors.yaml").open())[
+                "fhpi"].items():
+                val = val.lstrip("#")
+                colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
+
+            automaton = FhpOne(grid=input_grid)
+
+            HexagonalGrid(
+                title=f"LGCA {model_name}",
+                automaton=automaton,
+                tile_size=tile_size,
+                colors=tuple(colors),
+                max_iteration=steps,
+                run=run,
+                fps=fps,
+            ).mainloop()
+
         case "HPP":
 
             col_palette = """
@@ -60,7 +138,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 1111:#FFFFFF
             """
 
-            colors = [0] * (2**7 + 16)
+            colors = [0] * (2 ** 7 + 16)
 
             for row in col_palette.strip().split("\n"):
                 dat = row.strip()
@@ -92,46 +170,30 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
 
             match pattern:
                 case "wiki":
-                    width, height = 300, 200
-
+                    width, height, tile_size, fps = 300, 200, 2, -1
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
+
                     solid_square(input_grid, height // 2, 15)
                 case "alt":
-                    height = width = 400
-                    tile_size = 1
-
+                    width, height, tile_size, fps = 400, 400, 1, -1
                     input_grid = [[rand_choice(range(16)) for _ in range(width)] for _ in range(height)]
 
                     for row in range(height - 37 - 90, height - 37):
                         for col in range(37, 37 + 100):
                             input_grid[row][col] = 0
-
                     frame(grid=input_grid, value=0b1000_0000, size=1)
                 case "random":
-                    fps = -1
-                    width = 600
-                    height = 400
-                    tile_size = 2
-                    input_grid = [
-                        [rand_choice(range(16)) if width // 4 < col < width - width // 4 else 0 for col in range(width)]
-                        for _ in range(height)
-                    ]
-
+                    width, height, tile_size, fps = 600, 400, 2, -1
                     input_grid = [[rand_choice(range(16)) for _ in range(width)] for _ in range(height)]
 
                     frame(grid=input_grid, value=0b1000_0000)
                 case "single":
-                    fps = 3
-                    tile_size = 64
-                    width = 13
-                    height = 13
+                    width, height, tile_size, fps = 13, 13, 64, 3
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                    input_grid[height // 2][width // 2 + 0] = cell
+
+                    input_grid[height // 2][width // 2 + 0] = value
                 case "obstacle":
-                    fps = -1
-                    tile_size = 2
-                    width = 400
-                    height = 300
+                    width, height, tile_size, fps = 400, 300, 2, -1
                     input_grid = [
                         [
                             rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
@@ -150,20 +212,17 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                     )
 
                 case "test":
-                    fps = 3
-                    tile_size = 64
-                    width = 13
-                    height = 13
+                    width, height, tile_size, fps = 13, 13, 64, 3
 
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
-                    if cell & 0b0001:
+                    if value & 0b0001:
                         input_grid[1][width // 2] = 1
-                    if cell & 0b0010:
+                    if value & 0b0010:
                         input_grid[height // 2][1] = 2
-                    if cell & 0b0100:
+                    if value & 0b0100:
                         input_grid[height - 2][width // 2] = 4
-                    if cell & 0b1000:
+                    if value & 0b1000:
                         input_grid[height // 2][width - 2] = 8
 
                     input_grid[height // 2][width // 2 + 0] = 0b1000_0000
