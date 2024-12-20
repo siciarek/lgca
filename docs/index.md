@@ -39,4 +39,6 @@ For full documentation visit [mkdocs.org](https://www.mkdocs.org).
 
 ## References
 
+* https://www.youtube.com/watch?v=zJq6VaOkANE
+* https://www.youtube.com/watch?v=VLsYlN6kUvU
 * https://www.redblobgames.com/grids/hexagons/
