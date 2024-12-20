@@ -29,7 +29,8 @@ jobs:
         pip install ".[dev]"
     - name: Check repo with pre-commit
       run: |
-        pre-commit
+        pre-commit install
+        pre-commit run --all-files
     - name: Test with pytest
       run: |
         pytest

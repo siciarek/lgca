@@ -3,7 +3,7 @@ import yaml
 
 from lgca.display import HexagonalGrid
 from lgca.automata import FhpOne
-from lgca.utils.initial_shape import frame, solid_rectangle, solid_square
+from lgca.utils.initial_shape import solid_square
 from lgca import settings
 
 
@@ -14,7 +14,7 @@ def test_hex_lattice():
 
     colors = [None] * 64
     for key, val in yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / "colors.yaml").open())["fhpi"].items():
-        val = val.lstrip('#')
+        val = val.lstrip("#")
         colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
 
     match pattern:
@@ -32,13 +32,14 @@ def test_hex_lattice():
             width, height, tile_size, fps = 400, 300, 2, -1
 
             input_grid = [
-                [secrets.choice(range(64)) if col < width // 2 and secrets.SystemRandom().random() < 0.3 else 0 for col
-                 in
-                 range(width)]
+                [
+                    secrets.choice(range(64)) if col < width // 2 and secrets.SystemRandom().random() < 0.3 else 0
+                    for col in range(width)
+                ]
                 for _ in range(height)
             ]
 
-            obstacle_value = len(colors) - 1
+            len(colors) - 1
 
             # frame(grid=input_grid, value=obstacle_value, size=1)
             # solid_rectangle(

@@ -60,7 +60,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 1111:#FFFFFF
             """
 
-            colors = [0] * (2 ** 7 + 16)
+            colors = [0] * (2**7 + 16)
 
             for row in col_palette.strip().split("\n"):
                 dat = row.strip()
