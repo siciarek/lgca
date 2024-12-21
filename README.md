@@ -2,10 +2,10 @@
 
 This project contains `Python` implementation of the popular *Lattice Gas Cellular Automata*, listed below.
 
-* HPP
-* FHP I
-* FHP II
-* FHP III
+* [X] HPP
+* [X] FHP I
+* [X] FHP II
+* [ ] FHP III
 
 > [!WARNING]
 > Work in progress...
