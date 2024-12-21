@@ -14,7 +14,7 @@ prepare_setup: clean
 	rm -rvf .venv .tox
 	python -m venv .venv
 	. .venv/bin/activate
-	python -m pip install --upgrade pip setuptools wheel build
+	python -m pip install --upgrade pip setuptools wheel build twine
 
 clean:
 	rm -rvf site htmlcov coverage-reports .coverage* build *.egg-info *.whl
