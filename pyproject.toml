@@ -32,6 +32,7 @@ Changelog = "https://github.com/siciarek/lgca/blob/master/docs/change-log.md"
 
 [project.optional-dependencies]
 doc = [
+    "git-changelog~=2.5.3",
     "mkdocs~=1.5.3",
     "mkdocs-material~=9.5.17",
     "mkdocs-material-extensions~=1.3.1",
@@ -109,3 +110,23 @@ deps:
 commands =
     pytest
 """
+
+[tool.git-changelog]
+bump = "minor"
+convention = "conventional"
+in-place = false
+filter-commits = "0.5.0.."
+marker-line = "<!-- insertion marker -->"
+output = "output.log"
+parse-refs = false
+parse-trailers = false
+provider = "gitlab"
+repository = "."
+sections = "fix,maint"
+template = "keepachangelog"
+version-regex = "^## \\\\[(?P<version>v?[^\\\\]]+)"
+versioning = "semver"
+zerover = true
+
+[jinja_context]
+footer = "Copyright 2024 Jacek Siciarek"
