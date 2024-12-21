@@ -76,7 +76,7 @@ So the sample usage can look like this
 lgca --run
 ```
 
-The command above should display the *HPP model*, the same as presented on Wikipedia.
+The above command should display the *HPP model* visualization, identical to the one on Wikipedia.
 
 https://en.wikipedia.org/wiki/HPP_model
 
