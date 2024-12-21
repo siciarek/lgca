@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.1.5](https://github.com/siciarek/lgca/tags/0.1.5) - 2024-12-21
+
+<small>[Compare with 0.1.4](https://github.com/siciarek/lgca/compare/0.1.4...0.1.5)</small>
+
 ## [0.1.4](https://github.com/siciarek/lgca/tags/0.1.4) - 2024-12-21
 
 <small>[Compare with 0.1.3](https://github.com/siciarek/lgca/compare/0.1.3...0.1.4)</small>
