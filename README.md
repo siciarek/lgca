@@ -13,13 +13,19 @@ Models with checked names are implemented and ready to use.
 
 ## Application GUI
 
-*Application window when the following command was called:*
+*Application window when the following commands were called:*
+
+```bash
+lgca --model-name=HPP --pattern=wiki --steps=640 --run
+```
+
+![HPP, obstacle, step 250 <](docs/images/hpp-obstacle-step-250.png)
 
 ```bash
 lgca --model-name=FHPII --pattern=obstacle --steps=250 --run
 ```
 
-![FHP II, step 250 <](docs/images/fhp-ii-step-250.png)
+![FHP II, obstacle, step 250 <](docs/images/fhp-ii-obstacle-step-250.png)
 
 ## Installation
 
