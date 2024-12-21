@@ -26,8 +26,6 @@ class HexagonalGrid:
             (height + 1) * tile_size * (sqrt(3) / 2) - tile_size // 3,
         )
 
-        print("SIZE:", size)
-
         pygame.init()
         self.tile_size = tile_size
         self.window: pygame.Surface = pygame.display.set_mode(size=size)

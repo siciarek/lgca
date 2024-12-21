@@ -1,5 +1,5 @@
-from lgca.automata import Lgca
+from lgca.automata import FhpOne
 
 
-class FhpThree(Lgca):
-    name: str = "fhpiii"
+class FhpThree(FhpOne):
+    name: str = "FHP III"

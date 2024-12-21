@@ -1,5 +1,6 @@
 import secrets
 import click
+from functools import partial
 import yaml
 from lgca.automata import Hpp, FhpOne
 from lgca.display import SquareGrid, HexagonalGrid
@@ -59,7 +60,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
     [ ] FHP II
     [ ] FHP III
     """
-    Grid = None
+
     rand_choice = secrets.choice
     rand_uniform = secrets.SystemRandom().random
 
@@ -99,20 +100,28 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
 
                     input_grid[row][col] = value
                 case "test":
-                    width, height, tile_size, fps = 19, 16, 64, 4
+                    width, height, tile_size, fps = 19, 19, 60, 4
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
                     row, col = height // 2, width // 2
 
+                    dist = 3
+                    x = dist - 1
+
                     offsets = (
-                        (0b000100, -3, 0),
-                        (0b100000, 3, 0),
-                        (0b000001, 2, -3),
-                        (0b001000, -1, 3),
-                        (0b000010, -1, -3),
-                        (0b010000, 2, 3),
+                        (0b000100, -dist, 0),
+                        (0b100000, dist, 0),
+                        (0b000001, x, -dist),
+                        (0b001000, -(dist - x), dist),
+                        (0b000010, -(dist - x), -dist),
+                        (0b010000, x, dist),
                     )
 
                     input_grid[row][col] = 0b1000_0000
+
+                    # HONEYCOMB
+                    # for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
+                    #     input_grid[row + row_off][col + col_off] = 0b1000_0000
+
 
                     for mask, row_off, col_off in offsets:
                         if value & mask:
@@ -134,8 +143,15 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 set_up_colors(int(key, 2), colors[int(key, 2)], colors)
 
             automaton = FhpOne(grid=input_grid)
-
-            cls = HexagonalGrid
+            HexagonalGrid(
+                title=f"LGCA {automaton.name}",
+                automaton=automaton,
+                tile_size=tile_size,
+                colors=tuple(colors),
+                max_iteration=steps,
+                run=run,
+                fps=fps,
+            ).mainloop()
 
         case "HPP":
 
@@ -220,7 +236,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                     )
 
                 case "test":
-                    width, height, tile_size, fps = 13, 13, 64, 3
+                    width, height, tile_size, fps = 19, 19, 54, 4
 
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
@@ -238,19 +254,15 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                     frame(grid=input_grid, value=0b1000_0000, size=1)
 
             automaton = Hpp(grid=input_grid)
-
-            Grid = SquareGrid
+            SquareGrid(
+                title=f"LGCA {automaton.name}",
+                automaton=automaton,
+                tile_size=tile_size,
+                colors=tuple(colors),
+                max_iteration=steps,
+                run=run,
+                fps=fps,
+            ).mainloop()
 
         case _:
             raise click.ClickException(f"{model_name=} is not supported yet.")
-
-
-        Grid(
-            title=f"LGCA {automaton.name}",
-            automaton=automaton,
-            tile_size=tile_size,
-            colors=tuple(colors),
-            max_iteration=steps,
-            run=run,
-            fps=fps,
-        ).mainloop()
