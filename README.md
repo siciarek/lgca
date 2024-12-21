@@ -81,3 +81,5 @@ The above command should display the *HPP model* visualization, identical to the
 * To start/stop the application just press the *space button*.
 * To reset app to the initial state press the *S button*.
 * To quit the app pres *ESC button* or quit the window.
+
+![build status](https://github.com/siciarek/lgca/actions/workflows/build.yml/badge.svg)
