@@ -11,6 +11,8 @@ Models with checked names are implemented and ready to use.
 * [X] FHP II
 * [ ] FHP III
 
+## Application GUI
+
 *Application window when the following command was called:*
 
 ```bash
