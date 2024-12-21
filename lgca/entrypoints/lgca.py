@@ -44,12 +44,15 @@ def set_up_colors(binary, hexa, colors):
 
 
 @click.command()
-@click.option("-v", "--value", type=click.IntRange(0, 255), default=0, help="Content value.")
+@click.option("-v", "--value", type=click.IntRange(0, 255), default=0, show_default=True,
+              help="Content value.")
 @click.option(
     "-n",
     "--model-name",
     type=click.Choice(["HPP", "FHPI", "FHPII", "FHPIII", "hpp", "fhpi", "fhpii", "fhpiii"]),
+    show_default=True,
     default="HPP",
+    help="Model name."
 )
 @click.option("-w", "--width", default=300, show_default=True, help="Lattice window width.")
 @click.option("-h", "--height", default=200, show_default=True, help="Lattice window height.")

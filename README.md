@@ -10,63 +10,77 @@ This project contains `Python` implementation of the popular *Lattice Gas Cellul
 > [!WARNING]
 > Work in progress...
 
-[//]: # (## Installation)
+## Installation
 
-[//]: # ()
-[//]: # (The application is available in `PyPI` package repository and can be installed with `pip`)
+Clone or download current project
 
-[//]: # ()
-[//]: # (```bash)
+```bash
+git clone https://github.com/siciarek/lgca.git
+```
 
-[//]: # (pip install lgca)
+go to the main project directory
 
-[//]: # (```)
+```bash
+cd lgca
+```
 
-[//]: # ()
-[//]: # (## Usage)
+and install it locally (using a Python virtual environment is strongly recommended).
 
-[//]: # ()
-[//]: # (To get some information about the application just run)
+```
+python -m venv .venv
+. .venv/bin/activate
+pip install '.[dev]'
+```
 
-[//]: # ()
-[//]: # (```bash)
+> [!INFO]
+> The project will be available via `PyPI` after full implementation of `FHP III`,
+> at the moment is available only as described above.
 
-[//]: # (lgca --help)
 
-[//]: # (```)
+## Usage
 
-[//]: # ()
-[//]: # (You should see something like below)
+To get some information about the application just run:
 
-[//]: # ()
-[//]: # (```text)
+```bash
+lgca --help
+```
 
-[//]: # (Usage: lgca [OPTIONS])
+and You should see something like below.
 
-[//]: # ()
-[//]: # (  Lattice Gas Cellular Automata * HPP * FHP I * FHP II * FHP III)
+```text
+pygame 2.5.2 (SDL 2.28.3, Python 3.12.7)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Usage: lgca [OPTIONS]
 
-[//]: # ()
-[//]: # (Options:)
+  Lattice Gas Cellular Automata [X] HPP [X] FHP I [X] FHP II [ ] FHP III
 
-[//]: # (  -c, --cell INTEGER RANGE        Cell content binary definition.  [0<=x<=15])
+Options:
+  -v, --value INTEGER RANGE       Content value.  [default: 0; 0<=x<=255]
+  -n, --model-name [HPP|FHPI|FHPII|FHPIII|hpp|fhpi|fhpii|fhpiii]
+                                  Model name.  [default: HPP]
+  -w, --width INTEGER             Lattice window width.  [default: 300]
+  -h, --height INTEGER            Lattice window height.  [default: 200]
+  -s, --steps INTEGER             Number of steps.  [default: -1]
+  -r, --run                       Run immediately.
+  -d, --deterministic             Generate the same randomized result for the
+                                  same params.  [default: True]
+  -p, --pattern [wiki|random|alt|single|obstacle|test]
+                                  Select initial state pattern.  [default:
+                                  wiki]
+  --help                          Show this message and exit.
+```
 
-[//]: # (  -n, --model-name [HPP|FHPI|FHPII|FHPIII])
+So the sample usage can look like this
 
-[//]: # (  -w, --width INTEGER             Lattice window width.  [default: 300])
+```bash
+lgca --run
+```
 
-[//]: # (  -h, --height INTEGER            Lattice window height.  [default: 200])
+The command above should display the *HPP model*, the same as presented on Wikipedia.
 
-[//]: # (  -s, --steps INTEGER             Number of steps.  [default: -1])
+https://en.wikipedia.org/wiki/HPP_model
 
-[//]: # (  -r, --run                       Run immediately.)
+* To start/stop the application just press the *space button*.
+* To reset app to the initial state press the *S button*.
+* To quit the app pres *ESC button* or window quit icon.
 
-[//]: # (  -p, --pattern [wiki|random|alt|single|obstacle|test])
-
-[//]: # (                                  Select initial state pattern.  [default:)
-
-[//]: # (                                  wiki])
-
-[//]: # (  --help                          Show this message and exit.)
-
-[//]: # (```)
