@@ -83,4 +83,6 @@ The above command should display the *HPP model* visualization, identical to the
 * To quit the app pres *ESC button* or quit the window.
 
 
+## Status
+
 ![build status](https://github.com/siciarek/lgca/actions/workflows/python-app.yml/badge.svg)
