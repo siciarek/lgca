@@ -32,7 +32,7 @@ python -m venv .venv
 pip install '.[dev]'
 ```
 
-> [!INFO]
+> [!NOTE]
 > The project will be available via `PyPI` after full implementation of `FHP III`,
 > at the moment is available only as described above.
 
