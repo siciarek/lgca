@@ -82,5 +82,5 @@ https://en.wikipedia.org/wiki/HPP_model
 
 * To start/stop the application just press the *space button*.
 * To reset app to the initial state press the *S button*.
-* To quit the app pres *ESC button* or window quit icon.
+* To quit the app pres *ESC button* or quit the window.
 
