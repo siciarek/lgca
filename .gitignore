@@ -147,3 +147,4 @@ coverage-reports/
 /logs/
 /tmp/
 /run.py
+/Mekfile.mk

@@ -1,40 +1,23 @@
 # Lattice Gas Cellular Automata
 
+> [!WARNING]
+> Work in progress...
+
 This project contains `Python` implementation of the popular *Lattice Gas Cellular Automata*, listed below.
+Models with checked names are implemented and ready to use.
 
 * [X] HPP
 * [X] FHP I
 * [X] FHP II
 * [ ] FHP III
 
-> [!WARNING]
-> Work in progress...
-
 ## Installation
 
-Clone or download current project
+Install using `pip` (creating a Python virtual environment first is strongly recommended).
 
 ```bash
-git clone https://github.com/siciarek/lgca.git
+pip install lgca
 ```
-
-go to the main project directory
-
-```bash
-cd lgca
-```
-
-and install it locally (using a Python virtual environment is strongly recommended).
-
-```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install '.[dev]'
-```
-
-> [!NOTE]
-> The project will be available via `PyPI` after full implementation of `FHP III`,
-> at the moment is available only as described above.
 
 ## Usage
 
