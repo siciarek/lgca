@@ -114,10 +114,10 @@ commands =
 [tool.git-changelog]
 bump = "minor"
 convention = "conventional"
-in-place = false
-filter-commits = "0.5.0.."
+in-place = true
+#filter-commits = "0.5.0.."
 marker-line = "<!-- insertion marker -->"
-output = "output.log"
+output = "docs/change-log.md"
 parse-refs = false
 parse-trailers = false
 provider = "gitlab"

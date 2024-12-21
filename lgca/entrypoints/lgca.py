@@ -3,7 +3,7 @@ import random
 from functools import partial
 import click
 import yaml
-from lgca.automata import Hpp, FhpOne, FhpTwo
+from lgca.automata import Hpp, FhpOne, FhpTwo, FhpThree
 from lgca.display import SquareGrid, HexagonalGrid
 from lgca.utils.initial_shape import solid_square, frame, solid_rectangle
 from lgca import settings
@@ -44,7 +44,7 @@ def set_up_colors(binary, hexa, colors):
 
 
 @click.command()
-@click.option("-v", "--value", type=click.IntRange(0, 255), default=0, show_default=True, help="Content value.")
+@click.option("-v", "--value", type=str, default="0", show_default=True, help="Content value.")
 @click.option(
     "-n",
     "--model-name",
@@ -74,7 +74,7 @@ def set_up_colors(binary, hexa, colors):
     help="Select initial state pattern.",
 )
 def main(
-    width: int, height: int, model_name: str, steps: int, run: bool, pattern: str, value: int, deterministic: bool
+    width: int, height: int, model_name: str, steps: int, run: bool, pattern: str, value: str, deterministic: bool
 ):
     """
     Lattice Gas Cellular Automata
@@ -83,6 +83,17 @@ def main(
     [X] FHP II
     [ ] FHP III
     """
+
+    if "0b" in value:
+        value = int(value.replace("0b", ""), 2)
+    elif "0o" in value:
+        value = int(value.replace("0o", ""), 8)
+    elif "0x" in value:
+        value = int(value.replace("0x", ""), 16)
+    else:
+        value = int(value, 10)
+
+    print(f"{value=}")
 
     if deterministic:
         rand_choice = random.choice
@@ -93,6 +104,101 @@ def main(
         rand_uniform = secrets.SystemRandom().random
 
     match model_name.upper():
+        case "FHPIII":
+            match pattern:
+                case "wiki":
+                    width, height, tile_size, fps = 300, 200, 2, -1
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+
+                    solid_square(input_grid, height // 2, 0b111111)
+                case "random":
+                    width, height, tile_size, fps = 400, 300, 2, -1
+                    input_grid = [[secrets.choice(range(128)) for _ in range(width)] for _ in range(height)]
+                case "obstacle":
+                    width, height, tile_size, fps = 400, 300, 2, -1
+                    input_grid = [
+                        [
+                            rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
+                            for col in range(width)
+                        ]
+                        for _ in range(height)
+                    ]
+
+                    frame(grid=input_grid, value=0b1000_0000, size=tile_size)
+                    solid_rectangle(
+                        grid=input_grid,
+                        value=0b1000_0000,
+                        height=height // 3,
+                        width=4,
+                        left_offset=width // 8 + 2,
+                    )
+                case "single":
+                    width, height, tile_size, fps = 17, 18, 64, 4
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    row, col = height // 2, width // 2
+
+                    input_grid[row][col] = value
+                case "test":
+                    width, height, tile_size, fps = 19, 19, 60, 4
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    row, col = height // 2, width // 2
+
+                    dist = 3
+                    x = dist - 1
+
+                    offsets = (
+                        (0b000100, -dist, 0),
+                        (0b100000, dist, 0),
+                        (0b000001, x, -dist),
+                        (0b001000, -(dist - x), dist),
+                        (0b000010, -(dist - x), -dist),
+                        (0b010000, x, dist),
+                    )
+
+                    # input_grid[row][col] = 0b1000_0000
+
+                    # HONEYCOMB
+                    # for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
+                    #     input_grid[row + row_off][col + col_off] = 0b1000_0000
+
+                    frame(grid=input_grid, value=0b1000_0000)
+
+                    for mask, row_off, col_off in offsets:
+                        if value & mask:
+                            input_grid[row + row_off][col + col_off] = mask
+
+            color_temp = {}
+            for i in range(0b111_1111 + 1):
+                if i.bit_count() not in color_temp:
+                    color_temp[i.bit_count()] = []
+                color_temp[i.bit_count()].append(i)
+
+            palette = generate_color_palette(len(color_temp))
+
+            xcolors = {}
+            for bits, values in color_temp.items():
+                for val in values:
+                    xcolors[f"{val:07b}"] = palette[bits]
+
+            colors = [None] * 128
+            for key, val in xcolors.items():
+                val = val.lstrip("#")
+                colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
+                set_up_colors(int(key, 2), colors[int(key, 2)], colors)
+
+            automaton = FhpThree(grid=input_grid)
+            title = f"LGCA {automaton.name}"
+            HexagonalGrid(
+                title=title,
+                automaton=automaton,
+                tile_size=tile_size,
+                colors=tuple(colors),
+                max_iteration=steps,
+                run=run,
+                fps=fps,
+                # background="#FFFFAA",
+            ).mainloop()
+
         case "FHPII":
             match pattern:
                 case "wiki":

@@ -11,6 +11,14 @@ Models with checked names are implemented and ready to use.
 * [X] FHP II
 * [ ] FHP III
 
+*Application window when the following command was called:*
+
+```bash
+lgca --model-name=FHPII --pattern=obstacle --steps=250 --run
+```
+
+![FHP II, step 250 <](docs/images/fhp-ii-step-250.png)
+
 ## Installation
 
 Install using `pip` (creating a Python virtual environment first is strongly recommended).
