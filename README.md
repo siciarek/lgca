@@ -26,7 +26,7 @@ cd lgca
 
 and install it locally (using a Python virtual environment is strongly recommended).
 
-```
+```bash
 python -m venv .venv
 . .venv/bin/activate
 pip install '.[dev]'
@@ -35,7 +35,6 @@ pip install '.[dev]'
 > [!NOTE]
 > The project will be available via `PyPI` after full implementation of `FHP III`,
 > at the moment is available only as described above.
-
 
 ## Usage
 
@@ -78,9 +77,8 @@ lgca --run
 
 The above command should display the *HPP model* visualization, identical to the one on Wikipedia.
 
-https://en.wikipedia.org/wiki/HPP_model
+<https://en.wikipedia.org/wiki/HPP_model>
 
 * To start/stop the application just press the *space button*.
 * To reset app to the initial state press the *S button*.
 * To quit the app pres *ESC button* or quit the window.
-

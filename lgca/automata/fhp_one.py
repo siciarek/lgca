@@ -15,4 +15,3 @@ class FhpOne(Lgca):
 
     def get_neighborhood(self, col):
         return settings.HONEYCOMB[col % 2]
-

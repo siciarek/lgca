@@ -3,7 +3,7 @@ import random
 from functools import partial
 import click
 import yaml
-from lgca.automata import Hpp, FhpOne, FhpTwo, FhpThree
+from lgca.automata import Hpp, FhpOne, FhpTwo
 from lgca.display import SquareGrid, HexagonalGrid
 from lgca.utils.initial_shape import solid_square, frame, solid_rectangle
 from lgca import settings
@@ -44,22 +44,27 @@ def set_up_colors(binary, hexa, colors):
 
 
 @click.command()
-@click.option("-v", "--value", type=click.IntRange(0, 255), default=0, show_default=True,
-              help="Content value.")
+@click.option("-v", "--value", type=click.IntRange(0, 255), default=0, show_default=True, help="Content value.")
 @click.option(
     "-n",
     "--model-name",
     type=click.Choice(["HPP", "FHPI", "FHPII", "FHPIII", "hpp", "fhpi", "fhpii", "fhpiii"]),
     show_default=True,
     default="HPP",
-    help="Model name."
+    help="Model name.",
 )
 @click.option("-w", "--width", default=300, show_default=True, help="Lattice window width.")
 @click.option("-h", "--height", default=200, show_default=True, help="Lattice window height.")
 @click.option("-s", "--steps", default=-1, show_default=True, help="Number of steps.")
 @click.option("-r", "--run", is_flag=True, default=False, show_default=True, help="Run immediately.")
-@click.option("-d", "--deterministic", is_flag=True, default=True, show_default=True,
-              help="Generate the same randomized result for the same params.")
+@click.option(
+    "-d",
+    "--deterministic",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help="Generate the same randomized result for the same params.",
+)
 @click.option(
     "-p",
     "--pattern",
@@ -68,8 +73,9 @@ def set_up_colors(binary, hexa, colors):
     show_default=True,
     help="Select initial state pattern.",
 )
-def main(width: int, height: int, model_name: str, steps: int, run: bool, pattern: str, value: int,
-         deterministic: bool):
+def main(
+    width: int, height: int, model_name: str, steps: int, run: bool, pattern: str, value: int, deterministic: bool
+):
     """
     Lattice Gas Cellular Automata
     [X] HPP
@@ -253,7 +259,8 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
 
             colors = [None] * 64
             for key, val in yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / "colors.yaml").open())[
-                "fhpi"].items():
+                "fhpi"
+            ].items():
                 val = val.lstrip("#")
                 colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
                 set_up_colors(int(key, 2), colors[int(key, 2)], colors)
@@ -294,7 +301,7 @@ def main(width: int, height: int, model_name: str, steps: int, run: bool, patter
                 1111:#FFFFFF
             """
 
-            colors = [0] * (2 ** 7 + 16)
+            colors = [0] * (2**7 + 16)
 
             for row in col_palette.strip().split("\n"):
                 dat = row.strip()

@@ -42,7 +42,6 @@ class Lgca(ABC):
                 new_val = self.temp_grid[row][col] & self.OBSTACLE_BIT
                 new_val |= self.temp_grid[row][col] & self.REST_PARTICLE_BIT
 
-
                 for idx, (row_off, col_off) in enumerate(self.get_neighborhood(col=col)):
                     # Torus mode:
                     n_row = (row + row_off + self.height) % self.height
