@@ -93,7 +93,7 @@ def main(
     else:
         value = int(value, 10)
 
-    print(f"{value=}")
+    print(f"{value=} {value=:07b}")
 
     if deterministic:
         rand_choice = random.choice
@@ -147,12 +147,13 @@ def main(
                     x = dist - 1
 
                     offsets = (
-                        (0b000100, -dist, 0),
-                        (0b100000, dist, 0),
-                        (0b000001, x, -dist),
-                        (0b001000, -(dist - x), dist),
-                        (0b000010, -(dist - x), -dist),
-                        (0b010000, x, dist),
+                        (0b1000000, 0, 0),
+                        (0b0000100, -dist, 0),
+                        (0b0100000, dist, 0),
+                        (0b0000001, x, -dist),
+                        (0b0001000, -(dist - x), dist),
+                        (0b0000010, -(dist - x), -dist),
+                        (0b0010000, x, dist),
                     )
 
                     # input_grid[row][col] = 0b1000_0000
@@ -242,6 +243,7 @@ def main(
                     x = dist - 1
 
                     offsets = (
+                        (0b1000000, 0, 0),
                         (0b000100, -dist, 0),
                         (0b100000, dist, 0),
                         (0b000001, x, -dist),
