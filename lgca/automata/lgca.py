@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 class Lgca(ABC):
     name: str = "LGCA"
+    masks: tuple = tuple()
     OBSTACLE_BIT: int = 0b1000_0000
     REST_PARTICLE_BIT: int = 0b0100_0000
 
