@@ -3,18 +3,6 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
-## [0.1.3](https://github.com/siciarek/lgca/releases/tag/0.1.3) - 2024-12-22
-
-<small>[Compare with 0.1.2](https://github.com/siciarek/lgca/compare/0.1.2...0.1.3)</small>
-
-## [0.1.2](https://github.com/siciarek/lgca/releases/tag/0.1.2) - 2024-12-22
-
-<small>[Compare with 0.1.1](https://github.com/siciarek/lgca/compare/0.1.1...0.1.2)</small>
-
-## [0.1.1](https://github.com/siciarek/lgca/releases/tag/0.1.1) - 2024-12-22
-
-<small>[Compare with 0.1.0](https://github.com/siciarek/lgca/compare/0.1.0...0.1.1)</small>
-
 ## [0.1.0](https://github.com/siciarek/lgca/releases/tag/0.1.0) - 2024-12-22
 
 <small>[Compare with first commit](https://github.com/siciarek/lgca/compare/dc97d553495089fbe14ea836e2008177ec851658...0.1.0)</small>
