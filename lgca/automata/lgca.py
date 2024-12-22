@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 
 
 class Lgca(ABC):
+    name: str = "LGCA"
     OBSTACLE_BIT: int = 0b1000_0000
     REST_PARTICLE_BIT: int = 0b0100_0000
 
@@ -36,7 +37,6 @@ class Lgca(ABC):
                 self.temp_grid[row][col] = result
 
     def free_translation(self) -> None:
-        # print()
         for row in range(self.height):
             for col in range(self.width):
                 new_val = self.temp_grid[row][col] & self.OBSTACLE_BIT
@@ -48,8 +48,5 @@ class Lgca(ABC):
                     n_col = (col + col_off + self.width) % self.width
 
                     new_val |= self.temp_grid[n_row][n_col] & self.masks[idx]
-
-                # if new_val > 0 and new_val != 0b1000_0000:
-                #     print(f"{new_val:07b}")
 
                 self.grid[row][col] = new_val
