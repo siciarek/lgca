@@ -17,7 +17,15 @@ prepare_setup: clean
 	python -m pip install --upgrade pip setuptools wheel build twine
 
 clean:
-	rm -rvf site htmlcov coverage-reports .coverage* build *.egg-info *.whl
+	rm -rvf site htmlcov coverage-reports .coverage* dist build *.egg-info *.whl
+	find . -type f -name "*.py[co]"
+	find . -type d -name __pycache__
+	find . -type f -name "*.py[co]" -delete
+	find . -type d -name __pycache__ -delete
+	find . -type f -name "*.py[co]"
+	find . -type d -name __pycache__
+
+tidy:
 	find . -type f -name "*.py[co]"
 	find . -type d -name __pycache__
 	find . -type f -name "*.py[co]" -delete

@@ -25,7 +25,7 @@ class Lgca(ABC):
 
     @abstractmethod
     def get_neighborhood(self, col):
-        return []
+        """Needs to be implemented."""
 
     def collision(self):
         for row in range(self.height):
