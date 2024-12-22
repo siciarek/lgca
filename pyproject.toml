@@ -21,6 +21,7 @@ classifiers = [
 dependencies = [
     "pygame~=2.5.2",
     "pyaml~=24.12.1",
+    "types-PyYAML",
     "click~=8.1.7",
 ]
 
