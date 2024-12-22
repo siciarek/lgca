@@ -80,6 +80,8 @@ particle:
   '1100010': [ '0100101', '0010011' ] # COLLISION 98
   '1101000': [ '0011001', '0110100' ] # COLLISION 104
 
+  # FHP III specific 4 particles collisions (23)
+
   # FHP III specific 5 particles collisions (15)
   # one off star
   '0011111': '1101110' # 31 - 110
