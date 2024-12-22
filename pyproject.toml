@@ -28,7 +28,7 @@ dependencies = [
 Homepage = "https://github.com/siciarek/lgca"
 Documentation = "https://github.com/siciarek/lgca/tree/master/docs"
 Repository = "https://github.com/siciarek/lgca"
-Changelog = "https://github.com/siciarek/lgca/blob/master/docs/change-log.md"
+Changelog = "https://github.com/siciarek/lgca/blob/master/docs/changelog.md"
 
 [project.optional-dependencies]
 doc = [
