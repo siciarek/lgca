@@ -5,7 +5,7 @@ import click
 import yaml
 from lgca.automata import Hpp, FhpOne, FhpTwo, FhpThree
 from lgca.display import SquareGrid, HexagonalGrid
-from lgca.utils.initial_shape import solid_square, frame, solid_rectangle
+from lgca.utils.add_shape import solid_square, frame, solid_rectangle
 from lgca import settings
 
 
@@ -470,6 +470,8 @@ def main(
                     width, height, tile_size, fps = 19, 19, 54, 4
 
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
+
+                    value = int(value)
 
                     if value & 0b0001:
                         input_grid[1][width // 2] = 1

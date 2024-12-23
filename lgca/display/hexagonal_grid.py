@@ -1,15 +1,13 @@
-import pygame
-from . import BaseGrid
-from lgca.external.hexagon import Hex, Layout, Point, layout_flat, polygon_corners
 from math import sqrt, ceil, floor
+import pygame
+from lgca.vendor.hexagon import Hex, Layout, Point, layout_flat, polygon_corners
+from . import BaseGrid
 
 
 class HexagonalGrid(BaseGrid):
 
-    def set_up_window(self) -> tuple[pygame.Surface, pygame.Surface]:
+    def set_up_window(self) -> None:
         height, width = len(self.automaton.grid), len(self.automaton.grid[0])
-        self.screen: pygame.Surface = pygame.Surface((width, height))
-        self.window: pygame.Surface = pygame.display.set_mode(size=(width * self.tile_size, height * self.tile_size))
 
         width_margin = -self.tile_size // 2
         size = (

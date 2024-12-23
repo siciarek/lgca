@@ -4,7 +4,7 @@ from . import BaseGrid
 
 class TriangularGrid(BaseGrid):
 
-    def set_up_window(self):
+    def set_up_window(self) -> None:
         height = len(self.automaton.grid) * (self.tile_size * 2) + 4
         width = len(self.automaton.grid[0]) * (self.tile_size + 1) + 4
 
@@ -18,7 +18,6 @@ class TriangularGrid(BaseGrid):
                 color = self.colors[val]
 
                 self.draw_triangle(
-                    surface=self.screen,
                     color=color,
                     size=size,
                     position=(
@@ -28,7 +27,7 @@ class TriangularGrid(BaseGrid):
                     mode=(x + y % 2) % 2,
                 )
 
-    def draw_triangle(self, surface, color, position, size, mode):
+    def draw_triangle(self, color, position, size, mode):
         x, y = position
         points = []
 
@@ -43,4 +42,4 @@ class TriangularGrid(BaseGrid):
             points.append((x - size // 2, y))
             points.append((x - size, y - size))
 
-        pygame.draw.polygon(surface=surface, color=color, points=points, width=0)
+        pygame.draw.polygon(surface=self.screen, color=color, points=points, width=0)

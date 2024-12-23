@@ -1,9 +1,17 @@
 from abc import abstractmethod
-import pygame
 from copy import deepcopy
+import pygame
 
 
 class BaseGrid:
+
+    @abstractmethod
+    def set_up_window(self) -> None:
+        """Needs to be implemented."""
+
+    @abstractmethod
+    def draw_grid(self) -> None:
+        """Needs to be implemented."""
 
     def __init__(
         self,
@@ -63,11 +71,3 @@ class BaseGrid:
             next(self)
 
             clock.tick(self.fps)
-
-    @abstractmethod
-    def set_up_window(self) -> tuple[pygame.Surface, pygame.Surface]:
-        """Needs to be implemented."""
-
-    @abstractmethod
-    def draw_grid(self) -> None:
-        """Needs to be implemented."""

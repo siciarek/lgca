@@ -48,7 +48,7 @@ repos:
   - id: pylint
     args:
     - --disable=import-error,import-outside-toplevel,missing-module-docstring,missing-class-docstring,too-few-public-methods,missing-function-docstring
-    - --ignore-paths=^app/migrations/.*|tests/app/.*$
+    - --ignore-paths=^lgca/vendor/.*|tests/app/.*$
     - --max-line-length=120
     - --good-names=a,b,e,i,j,k,l,r,x,y,z,u,v,w,p,q,n,ch,fp,wb,ws
 - repo: https://github.com/charliermarsh/ruff-pre-commit
@@ -112,7 +112,7 @@ repos:
   rev: 7.1.1        # pick a git hash / tag to point to
   hooks:
   - id: flake8
-    exclude: lgca/utils/hexagon.py
+    exclude: lgca/vendor/
     args:
     - --max-line-length=120
     - --max-complexity=10

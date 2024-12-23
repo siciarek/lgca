@@ -109,7 +109,7 @@ pythonpath = [
 ]
 
 [tool.bandit]
-exclude_dirs = [".venv", "venv", "tmp", "logs", "build", "tests"]
+exclude_dirs = [".venv", "venv", "tmp", "logs", "build", "tests", "lgca/vendor"]
 tests = []
 skips = []
 
