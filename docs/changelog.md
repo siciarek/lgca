@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.1.8](https://github.com/siciarek/lgca/releases/tag/0.1.8) - 2024-12-23
+
+<small>[Compare with 0.1.7](https://github.com/siciarek/lgca/compare/0.1.7...0.1.8)</small>
+
 ## [0.1.7](https://github.com/siciarek/lgca/releases/tag/0.1.7) - 2024-12-23
 
 <small>[Compare with 0.1.6](https://github.com/siciarek/lgca/compare/0.1.6...0.1.7)</small>
