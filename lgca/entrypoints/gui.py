@@ -3,7 +3,13 @@ import random
 from functools import partial
 import click
 import yaml
-from lgca.automata import Hpp, FhpOne, FhpTwo, FhpThree
+from lgca.automata import (
+    Lgca,
+    Hpp,
+    FhpOne,
+    FhpTwo,
+    FhpThree,
+)
 from lgca.display import SquareGrid, HexagonalGrid
 from lgca.utils.add_shape import solid_square, frame, solid_rectangle
 from lgca import settings
@@ -32,9 +38,10 @@ def set_up_colors(binary, hexa, colors):
         binary_num = binary
         color = hexa
 
-    obst_bin_num = binary_num | 0b1000_0000
-    if obst_bin_num >= len(colors):
-        colors += [0] * 0b1111_11111
+    while len(colors) <= 0xFF:
+        colors += [0]
+
+    obst_bin_num = binary_num | Lgca.OBSTACLE_BIT
 
     colors[obst_bin_num] = (
         0xAA,
@@ -124,13 +131,13 @@ def main(
                         for _ in range(height)
                     ]
 
-                    frame(grid=input_grid, value=0b1000_0000, size=tile_size)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
                     solid_rectangle(
                         grid=input_grid,
-                        value=0b1000_0000,
+                        value=Lgca.OBSTACLE_BIT,
                         height=height // 3,
                         width=4,
-                        left_offset=width // 8 + 2,
+                        offset={"left": width // 8 + 2, "top": 0},
                     )
                 case "single":
                     width, height, tile_size, fps = 17, 18, 64, 4
@@ -220,13 +227,13 @@ def main(
                         for _ in range(height)
                     ]
 
-                    frame(grid=input_grid, value=0b1000_0000, size=tile_size)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
                     solid_rectangle(
                         grid=input_grid,
-                        value=0b1000_0000,
+                        value=Lgca.OBSTACLE_BIT,
                         height=height // 3,
                         width=4,
-                        left_offset=width // 8 + 2,
+                        offset={"left": width // 8 + 2, "top": 0},
                     )
                 case "single":
                     width, height, tile_size, fps = 17, 18, 64, 4
@@ -258,7 +265,7 @@ def main(
                     # for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
                     #     input_grid[row + row_off][col + col_off] = 0b1000_0000
 
-                    frame(grid=input_grid, value=0b1000_0000)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT)
 
                     for mask, row_off, col_off in offsets:
                         if value & mask:
@@ -316,13 +323,13 @@ def main(
                         for _ in range(height)
                     ]
 
-                    frame(grid=input_grid, value=0b1000_0000, size=tile_size)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
                     solid_rectangle(
                         grid=input_grid,
-                        value=0b1000_0000,
+                        value=Lgca.OBSTACLE_BIT,
                         height=height // 3,
                         width=4,
-                        left_offset=width // 8 + 2,
+                        offset={"left": width // 8 + 2, "top": 0},
                     )
                 case "single":
                     width, height, tile_size, fps = 17, 18, 64, 4
@@ -347,7 +354,7 @@ def main(
                         (0b010000, x, dist),
                     )
 
-                    input_grid[row][col] = 0b1000_0000
+                    input_grid[row][col] = Lgca.OBSTACLE_BIT
 
                     # HONEYCOMB
                     # for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
@@ -357,7 +364,7 @@ def main(
                         if value & mask:
                             input_grid[row + row_off][col + col_off] = mask
 
-                    frame(grid=input_grid, value=0b1000_0000)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT)
 
                     # for x in range(0, 12, 3):
                     #     row, col = 1 + x, round(width / 2) + 1
@@ -367,7 +374,7 @@ def main(
 
             colors = [None] * 64
             for key, val in yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / "colors.yaml").open())[
-                "fhpi"
+                "fhp_6bits"
             ].items():
                 val = val.lstrip("#")
                 colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
@@ -457,13 +464,13 @@ def main(
                         for _ in range(height)
                     ]
 
-                    frame(grid=input_grid, value=0b1000_0000, size=tile_size)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
                     solid_rectangle(
                         grid=input_grid,
-                        value=0b1000_0000,
+                        value=Lgca.OBSTACLE_BIT,
                         height=height // 3,
                         width=4,
-                        left_offset=width // 8 + 2,
+                        offset={"left": width // 8 + 2, "top": 0},
                     )
 
                 case "test":
@@ -482,9 +489,9 @@ def main(
                     if value & 0b1000:
                         input_grid[height // 2][width - 2] = 8
 
-                    input_grid[height // 2][width // 2 + 0] = 0b1000_0000
+                    input_grid[height // 2][width // 2 + 0] = Lgca.OBSTACLE_BIT
 
-                    frame(grid=input_grid, value=0b1000_0000, size=1)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=1)
 
             automaton = Hpp(grid=input_grid)
             SquareGrid(

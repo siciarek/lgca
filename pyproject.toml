@@ -78,7 +78,7 @@ config = ["*"]
 version = { attr = "lgca.__version__" }
 
 [project.scripts]
-lgca = "lgca.entrypoints:lgca.main"
+lgca = "lgca.entrypoints:gui.main"
 
 [tool.coverage.run]
 omit = [

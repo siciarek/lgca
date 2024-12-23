@@ -1,15 +1,14 @@
 # Lattice Gas Cellular Automata
 
-> [!WARNING]
-> Work in progress...
-
-This project contains `Python` implementation of the popular *Lattice Gas Cellular Automata*, listed below.
+This project focuses on the declarative implementation of the popular *Lattice Gas Cellular Automata* listed below.
 Models with checked names are implemented and ready to use.
 
 * [X] HPP
 * [X] FHP I
 * [X] FHP II
 * [X] FHP III
+
+Currently, all the models are fully implemented, so feel free to test them.
 
 ## Application GUI
 
@@ -19,13 +18,13 @@ Models with checked names are implemented and ready to use.
 lgca --model-name=HPP --pattern=wiki --steps=640 --run
 ```
 
-![HPP, obstacle, step 250 <](docs/images/hpp-obstacle-step-250.png)
+![HPP, obstacle, step 250 <](https://github.com/siciarek/lgca/blob/main/docs/images/hpp-obstacle-step-640.png)
 
 ```bash
 lgca --model-name=FHPII --pattern=obstacle --steps=250 --run
 ```
 
-![FHP II, obstacle, step 250 <](docs/images/fhp-ii-obstacle-step-250.png)
+![FHP II, obstacle, step 250 <](https://github.com/siciarek/lgca/blob/main/docs/images/fhp-ii-obstacle-step-250.png)
 
 ## Installation
 
