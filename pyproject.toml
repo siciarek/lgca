@@ -87,7 +87,20 @@ skip_covered = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "--exitfirst --verbose -p no:cacheprovider --capture=no --cov-report=xml:coverage-reports/app.coverage-report.xml --cov-report=term --cov-report=html --cov=lgca"
+addopts = """
+--exitfirst \
+--verbose \
+-p no:cacheprovider \
+--capture=no \
+--cov-branch \
+--cov-report=xml:coverage-reports/app.coverage-report.xml \
+--cov-report=term \
+--cov-report=term-missing \
+--cov-report=html \
+--cov=lgca/automata
+--cov=lgca/display
+--cov=lgca/utils
+"""
 testpaths = [
     "tests",
 ]

@@ -1,6 +1,6 @@
 import pygame
 from . import BaseGrid
-from lgca.utils.hexagon import Hex, Layout, Point, layout_flat, polygon_corners
+from lgca.external.hexagon import Hex, Layout, Point, layout_flat, polygon_corners
 from math import sqrt, ceil, floor
 
 
