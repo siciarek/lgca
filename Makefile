@@ -1,3 +1,7 @@
+test:
+	. .venv/bin/activate
+	pytest
+
 install: prepare_setup
 	python -m pip install "."
 	@echo APPLICATION INSTALLED SUCCESSFULLY
@@ -38,12 +42,6 @@ pipc:
 	pip-compile --strip-extras --output-file=docs/requirements.txt pyproject.toml
 	pip-compile --strip-extras --all-extras --output-file=docs/requirements-dev.txt pyproject.toml
 	licensecheck
-
-# Run unit tests
-
-test:
-	. .venv/bin/activate
-	pytest
 
 tox:
 	. .venv/bin/activate

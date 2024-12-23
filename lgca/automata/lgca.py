@@ -1,6 +1,6 @@
-import random
-from lgca.utils.config_loader import get_config
 from abc import ABC, abstractmethod
+import secrets
+from lgca.utils.config_loader import get_config
 
 
 class Lgca(ABC):
@@ -9,7 +9,7 @@ class Lgca(ABC):
     OBSTACLE_BIT: int = 0b1000_0000
     REST_PARTICLE_BIT: int = 0b0100_0000
 
-    def __init__(self, grid):
+    def __init__(self, grid) -> None:
         self.grid: list[list[int]] = grid
         self.height: int = len(self.grid)
         self.width: int = len(self.grid[0])
@@ -33,7 +33,7 @@ class Lgca(ABC):
             for col in range(self.width):
                 result = self.collision_table[self.grid[row][col]]
                 if isinstance(result, list):
-                    result = random.choice(result)
+                    result = secrets.choice(result)
 
                 self.temp_grid[row][col] = result
 
