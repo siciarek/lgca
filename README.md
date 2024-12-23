@@ -18,13 +18,13 @@ Currently, all the models are fully implemented, so feel free to test them.
 lgca --model-name=HPP --pattern=wiki --steps=640 --run
 ```
 
-![HPP, obstacle, step 250 <](https://raw.githubusercontent.com/siciarek/lgca/refs/heads/main/docs/images/hpp-obstacle-step-640.png)
+![HPP, obstacle, step 250 <](https://github.com/siciarek/lgca/blob/main/docs/images/hpp-obstacle-step-640.png?raw=True)
 
 ```bash
 lgca --model-name=FHPII --pattern=obstacle --steps=250 --run
 ```
 
-![FHP II, obstacle, step 250 <](https://raw.githubusercontent.com/siciarek/lgca/refs/heads/main/docs/images/fhp-ii-obstacle-step-250.png)
+![FHP II, obstacle, step 250 <](https://github.com/siciarek/lgca/blob/main/docs/images/fhp-ii-obstacle-step-250.png?raw=True)
 
 ## Installation
 
