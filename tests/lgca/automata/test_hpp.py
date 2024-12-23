@@ -28,37 +28,32 @@ def test_next():
         assert automaton.grid == expected_dat[idx]
 
 
+def get_test_grid_from_file(file: Path):
+    assert file.is_file()
+
+    grid = defaultdict(list)
+
+    with file.open() as fp:
+        curr_idx = 0
+
+        for line in fp:
+            line = line.strip()
+            if not line:
+                curr_idx += 1
+                continue
+            line = line.replace(".", "0")
+            row = [int(i) for i in list(line)]
+            grid[curr_idx].append(row)
+
+    return grid
+
+
 def get_test_data(model: str, step_count: int):
     test_data_dir = Path(__file__).parent.parent.parent / "data" / model
     input_dat_file = test_data_dir / "input.dat"
     expected_dat_file = test_data_dir / f"expected.{step_count}.dat"
 
-    assert input_dat_file.is_file()
-    assert expected_dat_file.is_file()
-
-    input_dat = defaultdict(list)
-    expected_dat = defaultdict(list)
-
-    with input_dat_file.open() as fp:
-        curr_idx = 0
-
-        for line in fp:
-            line = line.strip()
-            if not line:
-                curr_idx += 1
-                continue
-
-            input_dat[curr_idx].append([int(i) for i in list(line)])
-
-    with expected_dat_file.open() as fp:
-        curr_idx = 0
-
-        for line in fp:
-            line = line.strip()
-            if not line:
-                curr_idx += 1
-                continue
-
-            expected_dat[curr_idx].append([int(i) for i in list(line)])
+    input_dat = get_test_grid_from_file(file=input_dat_file)
+    expected_dat = get_test_grid_from_file(file=expected_dat_file)
 
     return input_dat, expected_dat
