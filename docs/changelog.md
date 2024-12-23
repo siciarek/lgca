@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.1.7](https://github.com/siciarek/lgca/releases/tag/0.1.7) - 2024-12-23
+
+<small>[Compare with 0.1.6](https://github.com/siciarek/lgca/compare/0.1.6...0.1.7)</small>
+
+### Bug Fixes
+
+- lint notifications ([d506eec](https://github.com/siciarek/lgca/commit/d506eec89c8b8af11d4fdc1b9eb57478959937ff) by Jacek Siciarek).
+
 ## [0.1.6](https://github.com/siciarek/lgca/releases/tag/0.1.6) - 2024-12-22
 
 <small>[Compare with 0.1.5](https://github.com/siciarek/lgca/compare/0.1.5...0.1.6)</small>
