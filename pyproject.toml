@@ -26,8 +26,8 @@ dependencies = [
     "click~=8.1.7",
 ]
 
-[tool.mypy]
-disable_error_code = ["import-untyped"]
+#[tool.mypy]
+#disable_error_code = ["import-untyped"]
 
 [project.urls]
 Homepage = "https://github.com/siciarek/lgca"
