@@ -1,6 +1,5 @@
 test:
-	. .venv/bin/activate
-	pytest
+	. .venv/bin/activate && pytest
 
 install: prepare_setup
 	python -m pip install "."
