@@ -56,10 +56,10 @@ def solid_square(grid: list, size: int, value: int):
             arbitrary_single_point(grid=grid, row=row, col=col, value=value)
 
 
-def circle(grid: list, size: int, value: int, row_offset: int = 0, col_offset: int = 0):
+def solid_circle(grid: list, size: int, value: int, row_offset: int = 0, col_offset: int = 0):
     info = get_info(grid=grid)
 
-    radius = size // 2
+    radius = round(size / 2)
 
     center_row = info["center"]["row"] + row_offset
     center_col = info["center"]["col"] + col_offset
@@ -68,17 +68,6 @@ def circle(grid: list, size: int, value: int, row_offset: int = 0, col_offset: i
         for col in range(center_col - size // 2, center_col + size // 2 + 1):
             if (col - center_col) ** 2 + (row - center_row) ** 2 < radius**2:
                 arbitrary_single_point(grid=grid, row=row, col=col, value=value)
-
-
-def diamond(grid: list, size: int, value: int):
-    info = get_info(grid=grid)
-
-    offset = size // 2 + 1
-
-    for row in range(info["center"]["row"] - size // 2, info["center"]["row"] + size // 2 + 1):
-        offset += 1 if row - info["center"]["row"] > 0 else -1
-        for col in range(info["center"]["col"] - size // 2 + offset, info["center"]["col"] + size // 2 + 1 - offset):
-            arbitrary_single_point(grid=grid, row=row, col=col, value=value)
 
 
 def single_point(grid: list, position: str = "center", value: int = 1):

@@ -1,5 +1,5 @@
 from lgca.automata import Hpp, Lgca
-from tests.helpers.utils import get_test_data
+from tests.helpers import get_test_data
 
 
 def test_general():

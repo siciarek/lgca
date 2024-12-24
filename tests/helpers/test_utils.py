@@ -22,7 +22,7 @@ def get_test_grid_from_file(file: Path):
     return grid
 
 
-def get_test_data(folder: str, step_count: int = None):
+def get_test_data(folder: str, step_count: int | None = None):
     test_data_dir = Path(__file__).parent.parent / "data" / folder
     input_dat_file = test_data_dir / "input.dat"
     expected_dat_file = test_data_dir / (f"expected.{step_count}.dat" if step_count else "expected.dat")

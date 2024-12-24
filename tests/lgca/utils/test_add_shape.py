@@ -1,7 +1,7 @@
 from copy import deepcopy
 import pytest
 from lgca.utils import add_shape
-from tests.helpers.utils import get_test_data
+from tests.helpers import get_test_data
 
 frame_input_dat, frame_expected_dat = get_test_data("shapes/frame")
 frame_data_provider = (
@@ -25,6 +25,14 @@ single_point_data_provider = ((single_point_input_dat[0], single_point_expected_
 get_info_data_provider = (
     (300, 200, {"row": 100, "col": 150}),
     (400, 400, {"row": 200, "col": 200}),
+)
+
+solid_circle_input_dat, solid_circle_expected_dat = get_test_data("shapes/solid_circle")
+solid_circle_data_provider = (
+    (solid_circle_input_dat[0], solid_circle_expected_dat[0], 3, 1),
+    (solid_circle_input_dat[0], solid_circle_expected_dat[1], 5, 1),
+    (solid_circle_input_dat[0], solid_circle_expected_dat[2], 7, 1),
+    (solid_circle_input_dat[1], solid_circle_expected_dat[3], 41, 1),
 )
 
 
@@ -70,3 +78,19 @@ def test_single_point(input_grid, expected, position):
     add_shape.single_point(grid=grid, value=1, position=position)
 
     assert grid == expected
+
+
+@pytest.mark.parametrize("input_grid,expected,size, value", solid_circle_data_provider)
+def test_solid_circle(input_grid, expected, size, value):
+    grid = deepcopy(input_grid)
+    add_shape.solid_circle(grid=grid, size=size, value=value)
+
+    str_expected, str_grid = "", ""
+    for rix, row in enumerate(grid):
+        for cix, val in enumerate(row):
+            str_expected += str(expected[rix][cix])
+            str_grid += str(val)
+        str_expected += "\n"
+        str_grid += "\n"
+
+    assert str_grid == str_expected

@@ -101,7 +101,6 @@ addopts = """
 --cov-report=term-missing \
 --cov-report=html \
 --cov=lgca/automata
---cov=lgca/display
 --cov=lgca/utils
 """
 testpaths = [
