@@ -6,9 +6,9 @@ import yaml
 from lgca.automata import (
     Lgca,
     Hpp,
-    FhpOne,
-    FhpTwo,
-    FhpThree,
+    FhpI,
+    FhpII,
+    FhpIII,
 )
 from lgca.display import SquareGrid, HexagonalGrid
 from lgca.utils.add_shape import solid_square, frame, solid_rectangle
@@ -194,7 +194,7 @@ def main(
                 colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
                 set_up_colors(int(key, 2), colors[int(key, 2)], colors)
 
-            automaton = FhpThree(grid=input_grid)
+            automaton = FhpIII(grid=input_grid)
             title = f"LGCA {automaton.name}"
             HexagonalGrid(
                 title=title,
@@ -290,7 +290,7 @@ def main(
                 colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
                 set_up_colors(int(key, 2), colors[int(key, 2)], colors)
 
-            automaton = FhpTwo(grid=input_grid)
+            automaton = FhpII(grid=input_grid)
             title = f"LGCA {automaton.name}"
             HexagonalGrid(
                 title=title,
@@ -380,7 +380,7 @@ def main(
                 colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
                 set_up_colors(int(key, 2), colors[int(key, 2)], colors)
 
-            automaton = FhpOne(grid=input_grid)
+            automaton = FhpI(grid=input_grid)
             HexagonalGrid(
                 title=f"LGCA {automaton.name}",
                 automaton=automaton,

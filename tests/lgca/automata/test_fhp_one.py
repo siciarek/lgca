@@ -1,4 +1,4 @@
-from lgca.automata import FhpOne, Lgca
+from lgca.automata import FhpI, Lgca
 
 
 def test_general():
@@ -9,7 +9,7 @@ def test_general():
     input_grid = [[0 for _ in range(width)] for _ in range(height)]
     input_grid[height // 2][width // 2] = 0b100100
 
-    automaton: Lgca = FhpOne(grid=input_grid)
+    automaton: Lgca = FhpI(grid=input_grid)
 
     for _ in range(steps):
         next(automaton)

@@ -1,5 +1,5 @@
 import random
-from lgca.automata import FhpThree
+from lgca import automata as a
 from lgca.display import HexagonalGrid
 
 
@@ -8,11 +8,13 @@ def test_general():
     height = 200
 
     input_grid = [[random.choice(range(16)) for _ in range(width)] for _ in range(height)]
-    automaton = FhpThree(grid=input_grid)
 
-    disp = HexagonalGrid(
-        title=automaton.name,
-        automaton=automaton,
-    )
+    for cls in [a.FhpI, a.FhpII, a.FhpIII]:
+        automaton = cls(grid=input_grid)
 
-    assert isinstance(disp, HexagonalGrid)
+        disp = HexagonalGrid(
+            title=automaton.name,
+            automaton=automaton,
+        )
+
+        assert isinstance(disp, HexagonalGrid)

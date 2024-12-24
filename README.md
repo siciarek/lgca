@@ -81,6 +81,15 @@ The above command should display the *HPP model* visualization, identical to the
 * To reset app to the initial state press the *S button*.
 * To quit the app pres *ESC button* or quit the window.
 
+## References
+
+* [Hardy, J., Pomeau, Y., & Pazzis, O.D. (1973). Time evolution of a two‐dimensional model system. I. Invariant states and time correlation functions. Journal of Mathematical Physics, 14, 1746-1759.](https://sci-hub.se/10.1063/1.1666248)
+* [Hardy, J., Pazzis, O.D., & Pomeau, Y. (1976). Molecular dynamics of a classical lattice gas: Transport properties and time correlation functions. Physical Review A, 13, 1949-1961.](https://sci-hub.se/10.1103/physreva.13.1949)
+* [Frisch, U., Hasslacher, B., & Pomeau, Y. (1986). Lattice-gas automata for the Navier-Stokes equation. Physical review letters, 56 14, 1505-1508 .](https://sci-hub.se/10.1103/physrevlett.56.1505)
+* [Frisch, U., d'Humières, D., Hasslacher, B., Lallemand, P., Pomeau, Y., & Rivet, J. (1987). Lattice Gas Hydrodynamics in Two and Three Dimensions. Complex Syst., 1.](https://content.wolfram.com/sites/13/2018/02/01-4-7.pdf)
+* [Wylie, B.J. (1990). Application of two-dimensional cellular automaton lattice-gas models to the simulation of hydrodynamics.](https://pages.cs.wisc.edu/~wylie/doc/PhD_thesis.pdf)
+* [Buick, J.M. (1997). Lattice Boltzmann methods in interfacial wave modelling.](https://era.ed.ac.uk/bitstream/handle/1842/10845/Buick1997.pdf)
+
 ## Status
 
 ![build status](https://github.com/siciarek/lgca/actions/workflows/python-app.yml/badge.svg)

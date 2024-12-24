@@ -2,7 +2,7 @@ from lgca import settings
 from lgca.automata import Lgca
 
 
-class FhpOne(Lgca):
+class FhpI(Lgca):
     name: str = "FHP I"
     masks: tuple[int, int, int, int, int, int] = (
         0b001000,
