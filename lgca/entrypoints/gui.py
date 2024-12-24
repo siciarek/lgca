@@ -55,7 +55,14 @@ def set_up_colors(binary, hexa, colors):
 @click.option(
     "-n",
     "--model-name",
-    type=click.Choice(["HPP", "FHPI", "FHPII", "FHPIII", "hpp", "fhpi", "fhpii", "fhpiii"]),
+    type=click.Choice(
+        [
+            "HPP",
+            "FHP_I",
+            "FHP_II",
+            "FHP_III",
+        ]
+    ),
     show_default=True,
     default="HPP",
     help="Model name.",
@@ -88,7 +95,7 @@ def main(
     [X] HPP
     [X] FHP I
     [X] FHP II
-    [ ] FHP III
+    [X] FHP III
     """
 
     if "0b" in value:
@@ -110,8 +117,8 @@ def main(
         rand_choice = secrets.choice
         rand_uniform = secrets.SystemRandom().random
 
-    match model_name.upper():
-        case "FHPIII":
+    match model_name.lower():
+        case "fhp_iii":
             match pattern:
                 case "wiki":
                     width, height, tile_size, fps = 300, 200, 2, -1
@@ -207,7 +214,7 @@ def main(
                 # background="#FFFFAA",
             ).mainloop()
 
-        case "FHPII":
+        case "fhp_ii":
             match pattern:
                 case "wiki":
                     width, height, tile_size, fps = 300, 200, 2, -1
@@ -303,7 +310,7 @@ def main(
                 # background="#FFFFAA",
             ).mainloop()
 
-        case "FHPI":
+        case "fhp_i":
             match pattern:
                 case "wiki":
                     width, height, tile_size, fps = 300, 200, 2, -1
@@ -391,7 +398,7 @@ def main(
                 fps=fps,
             ).mainloop()
 
-        case "HPP":
+        case "hpp":
 
             col_palette = """
                 0000:#000000
@@ -503,6 +510,3 @@ def main(
                 run=run,
                 fps=fps,
             ).mainloop()
-
-        case _:
-            raise click.ClickException(f"{model_name=} is not supported yet.")

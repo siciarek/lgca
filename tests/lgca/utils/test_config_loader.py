@@ -6,9 +6,9 @@ from lgca.utils.config_loader import get_config
 
 models = (
     ("hpp", 16, 16, 2),
-    ("fhpi", 64, 64, 5),
-    ("fhpii", 128, 64, 22),
-    ("fhpiii", 128, 64, 76),
+    ("fhp_i", 64, 64, 5),
+    ("fhp_ii", 128, 64, 22),
+    ("fhp_iii", 128, 64, 76),
 )
 
 

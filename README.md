@@ -21,7 +21,7 @@ lgca --model-name=HPP --pattern=wiki --steps=640 --run
 ![HPP, obstacle, step 250 <](https://github.com/siciarek/lgca/raw/main/docs/images/hpp-obstacle-step-640.png?raw=True)
 
 ```bash
-lgca --model-name=FHPII --pattern=obstacle --steps=250 --run
+lgca --model-name=FHP_II --pattern=obstacle --steps=250 --run
 ```
 
 ![FHP II, obstacle, step 250 <](https://github.com/siciarek/lgca/raw/main/docs/images/fhp-ii-obstacle-step-250.png?raw=True)
@@ -49,11 +49,11 @@ pygame 2.5.2 (SDL 2.28.3, Python 3.12.7)
 Hello from the pygame community. https://www.pygame.org/contribute.html
 Usage: lgca [OPTIONS]
 
-  Lattice Gas Cellular Automata [X] HPP [X] FHP I [X] FHP II [ ] FHP III
+  Lattice Gas Cellular Automata [X] HPP [X] FHP I [X] FHP II [X] FHP III
 
 Options:
-  -v, --value INTEGER RANGE       Content value.  [default: 0; 0<=x<=255]
-  -n, --model-name [HPP|FHPI|FHPII|FHPIII|hpp|fhpi|fhpii|fhpiii]
+  -v, --value TEXT                Content value.  [default: 0]
+  -n, --model-name [HPP|FHP_I|FHP_II|FHP_III]
                                   Model name.  [default: HPP]
   -w, --width INTEGER             Lattice window width.  [default: 300]
   -h, --height INTEGER            Lattice window height.  [default: 200]

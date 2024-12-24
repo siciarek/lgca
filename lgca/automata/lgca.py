@@ -15,7 +15,7 @@ class Lgca(ABC):
         self.width: int = len(self.grid[0])
         self.step: int = 0
         self.temp_grid = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.collision_table = get_config(self.name.replace(" ", "").lower())
+        self.collision_table = get_config(self.name.replace(" ", "_").lower())
 
     def __next__(self):
         self.collision()
