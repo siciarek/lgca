@@ -11,7 +11,7 @@ from lgca.automata import (
     FhpIII,
 )
 from lgca.display import SquareGrid, HexagonalGrid
-from lgca.utils.add_shape import solid_square, frame, solid_rectangle
+from lgca.utils.add_shape import solid_square, frame, solid_rectangle, solid_circle
 from lgca import settings
 
 
@@ -131,21 +131,24 @@ def main(
                 case "obstacle":
                     width, height, tile_size, fps = 400, 300, 2, -1
                     input_grid = [
-                        [
-                            rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
-                            for col in range(width)
-                        ]
+                        [127 if col < width // 2 and rand_uniform() < 0.3 else 0 for col in range(width)]
                         for _ in range(height)
                     ]
 
                     frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
-                    solid_rectangle(
+                    solid_circle(
                         grid=input_grid,
+                        size=1 + height // 4,
                         value=Lgca.OBSTACLE_BIT,
-                        height=height // 3,
-                        width=4,
-                        offset={"left": width // 8 + 2, "top": 0},
+                        col_offset=80,
                     )
+                    # solid_rectangle(
+                    #     grid=input_grid,
+                    #     value=Lgca.OBSTACLE_BIT,
+                    #     height=height // 3,
+                    #     width=4,
+                    #     offset={"left": width // 8 + 2, "top": 0},
+                    # )
                 case "single":
                     width, height, tile_size, fps = 17, 18, 64, 4
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -226,15 +229,15 @@ def main(
                     input_grid = [[secrets.choice(range(128)) for _ in range(width)] for _ in range(height)]
                 case "obstacle":
                     width, height, tile_size, fps = 400, 300, 2, -1
+
                     input_grid = [
-                        [
-                            rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
-                            for col in range(width)
-                        ]
+                        [rand_choice(range(128)) if rand_uniform() < 0.3 else 0 for col in range(width)]
                         for _ in range(height)
                     ]
 
-                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
+                    solid_circle(grid=input_grid, value=0, size=height // 7)
+
+                    # frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
                     solid_rectangle(
                         grid=input_grid,
                         value=Lgca.OBSTACLE_BIT,
