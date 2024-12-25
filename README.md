@@ -92,5 +92,5 @@ The above command should display the *HPP model* visualization, identical to the
 
 ## Status
 
-![build status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+![build status](https://github.com/siciarek/lgca/actions/workflows/python-app.yml/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Code%20Coverage-100%25-success?style=flat)
