@@ -1,8 +1,9 @@
 import secrets
 import random
+from collections.abc import Callable
 from functools import partial
+from collections import defaultdict
 import click
-import yaml
 from lgca.automata import (
     Lgca,
     Hpp,
@@ -10,48 +11,84 @@ from lgca.automata import (
     FhpII,
     FhpIII,
 )
-from lgca.display import SquareGrid, HexagonalGrid
-from lgca.utils.add_shape import solid_square, frame, solid_rectangle, solid_circle
-from lgca import settings
+from lgca.display import (
+    SquareGrid,
+    HexagonalGrid,
+)
+from lgca.utils.add_shape import (
+    solid_square,
+    frame,
+    solid_rectangle,
+    solid_circle,
+)
+from lgca.utils.table_generator import BIT_COUNT
 
 
-def generate_color_palette(num: int):
+def parse_value(value: str) -> int:
+    if "0b" in value:
+        return int(value.replace("0b", ""), 2)
+
+    if "0o" in value:
+        return int(value.replace("0o", ""), 8)
+
+    if "0x" in value:
+        return int(value.replace("0x", ""), 16)
+
+    return int(value, 10)
+
+
+def get_color_palette(num: int):
     palette, step, color = [], round(0xFF / num), 0xFF
-    while color >= 0:
+
+    while len(palette) < num + 1:
         palette.append(f"#{color:02X}{color:02X}{color:02X}")
         color -= step
+
     if palette[-1] != "#000000":
         palette[-1] = "#000000"
+
     return palette[::-1]
 
 
-def set_up_colors(binary, hexa, colors):
-    if not hexa:
-        return
+def get_color_map(num, reverse: bool = False, obstacle_color: str = "#AA0000"):
+    color_palette = get_color_palette(num)
 
-    if isinstance(hexa, str):
-        hexa = hexa.lstrip("#")
-        color = (int(hexa[:2], 16), int(hexa[2:4], 16), int(hexa[4:], 16))
-        binary_num = int(binary, 2)
-        colors[binary_num] = color
-    else:
-        binary_num = binary
-        color = hexa
+    if reverse:
+        color_palette.reverse()
 
-    while len(colors) <= 0xFF:
-        colors += [0]
+    temp_map = defaultdict(dict)
+    color_map = [0] * 0x100
 
-    obst_bin_num = binary_num | Lgca.OBSTACLE_BIT
+    for i in range(2**num):
+        template = "{value:0" + str(num) + "b}"
+        key = template.format(value=i)
+        bit_count = i.bit_count()
+        temp_map[bit_count][key] = color_palette[bit_count]
 
-    colors[obst_bin_num] = (
-        0xAA,
-        color[0],
-        color[0],
-    )
+    oc: str = obstacle_color.lstrip("#")
+    obstacle_color = (int(oc[:2], 0x10), int(oc[2:4], 0x10), int(oc[4:], 0x10))
+
+    for _, values in temp_map.items():
+        for key, val in values.items():
+            int_key = int(key, 2)
+            val = val.lstrip("#")
+            color_map[int_key] = (
+                int(val[:2], 0x10),
+                int(val[2:4], 0x10),
+                int(val[4:], 0x10),
+            )
+            if not int_key & Lgca.REST_PARTICLE_BIT:
+                color_map[(int_key | Lgca.OBSTACLE_BIT)] = [w if w > 0 else int(val[:2], 0x10) for w in obstacle_color]
+
+    while color_map[-1] == 0:
+        color_map.pop()
+
+    return tuple(color_map)
 
 
 @click.command()
 @click.option("-v", "--value", type=str, default="0", show_default=True, help="Content value.")
+@click.option("-t", "--tile-size", type=int, default=2, show_default=True, help="Grid tile size.")
 @click.option(
     "-n",
     "--model-name",
@@ -83,12 +120,29 @@ def set_up_colors(binary, hexa, colors):
     "-p",
     "--pattern",
     default="wiki",
-    type=click.Choice(["wiki", "random", "alt", "single", "obstacle", "test"]),
+    type=click.Choice(["collision", "wiki", "random", "alt", "single", "obstacle", "test", "wave"]),
     show_default=True,
     help="Select initial state pattern.",
 )
+@click.option(
+    "-m",
+    "--mode",
+    default=Lgca.MODE_TORUS,
+    type=click.Choice(["torus", "die"]),
+    show_default=True,
+    help="Automaton behavior when the particle reaches the edge.",
+)
 def main(
-    width: int, height: int, model_name: str, steps: int, run: bool, pattern: str, value: str, deterministic: bool
+    width: int,
+    height: int,
+    tile_size: int,
+    model_name: str,
+    steps: int,
+    run: bool,
+    pattern: str,
+    value: str,
+    deterministic: bool,
+    mode: str,
 ):
     """
     Lattice Gas Cellular Automata
@@ -98,28 +152,42 @@ def main(
     [X] FHP III
     """
 
-    if "0b" in value:
-        value = int(value.replace("0b", ""), 2)
-    elif "0o" in value:
-        value = int(value.replace("0o", ""), 8)
-    elif "0x" in value:
-        value = int(value.replace("0x", ""), 16)
-    else:
-        value = int(value, 10)
+    value = parse_value(value=value)
 
     print(f"{value=} {value=:07b}")
 
     if deterministic:
-        rand_choice = random.choice
-        rand_uniform = partial(random.uniform, 0, 1)
+        rand_choice: Callable = random.choice
+        rand_uniform: partial | Callable = partial(random.uniform, 0, 1)
         random.seed(42)
     else:
-        rand_choice = secrets.choice
-        rand_uniform = secrets.SystemRandom().random
+        rand_choice: Callable = secrets.choice
+        rand_uniform: partial | Callable = secrets.SystemRandom().random
 
-    match model_name.lower():
+    model_name = model_name.lower()
+
+    automaton_class = {"hpp": Hpp, "fhp_i": FhpI, "fhp_ii": FhpII, "fhp_iii": FhpIII}
+
+    grid_class = {
+        "hpp": SquareGrid,
+        "fhp_i": HexagonalGrid,
+        "fhp_ii": HexagonalGrid,
+        "fhp_iii": HexagonalGrid,
+    }
+
+    colors = get_color_map(num=BIT_COUNT[model_name])
+
+    match model_name:
         case "fhp_iii":
             match pattern:
+
+                case "collision":
+                    width, height, tile_size, fps, mode = 300, 400, 2, -1, Lgca.MODE_DIE
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    solid_rectangle(
+                        grid=input_grid, width=50, height=50, value=0b0000100, offset={"top": -50, "left": 0}
+                    )
+                    solid_rectangle(grid=input_grid, width=50, height=50, value=0b100000, offset={"top": 50, "left": 0})
                 case "wiki":
                     width, height, tile_size, fps = 300, 200, 2, -1
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -129,19 +197,41 @@ def main(
                     width, height, tile_size, fps = 400, 300, 2, -1
                     input_grid = [[secrets.choice(range(128)) for _ in range(width)] for _ in range(height)]
                 case "obstacle":
-                    width, height, tile_size, fps = 400, 300, 2, -1
+                    width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
+
                     input_grid = [
-                        [127 if col < width // 2 and rand_uniform() < 0.3 else 0 for col in range(width)]
+                        [
+                            rand_choice(range(127)) if rand_uniform() < 0.3 and col < width // 2 else 0
+                            for col in range(width)
+                        ]
                         for _ in range(height)
                     ]
 
-                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
-                    solid_circle(
+                    solid_rectangle(
                         grid=input_grid,
-                        size=1 + height // 4,
                         value=Lgca.OBSTACLE_BIT,
-                        col_offset=80,
+                        height=height // 3,
+                        width=4,
+                        offset={"left": 50, "top": 0},
                     )
+                    width, height, tile_size, fps = 400, 300, 2, -1
+                    # input_grid = [
+                    #     [rand_choice(range(128)) if col < width // 2 and rand_uniform() < 0.3 else 0 for col in
+                    #      range(width)]
+                    #     for _ in range(height)
+                    # ]
+
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
+
+                    # solid_circle(grid=input_grid, value=0, size=height // 5)
+                    # solid_square(grid=input_grid, value=127, size=height // 12)
+
+                    # solid_circle(
+                    #     grid=input_grid,
+                    #     size=1 + height // 4,
+                    #     value=Lgca.OBSTACLE_BIT,
+                    #     col_offset=80,
+                    # )
                     # solid_rectangle(
                     #     grid=input_grid,
                     #     value=Lgca.OBSTACLE_BIT,
@@ -185,40 +275,15 @@ def main(
                         if value & mask:
                             input_grid[row + row_off][col + col_off] = mask
 
-            color_temp = {}
-            for i in range(0b111_1111 + 1):
-                if i.bit_count() not in color_temp:
-                    color_temp[i.bit_count()] = []
-                color_temp[i.bit_count()].append(i)
-
-            palette = generate_color_palette(len(color_temp))
-
-            xcolors = {}
-            for bits, values in color_temp.items():
-                for val in values:
-                    xcolors[f"{val:07b}"] = palette[bits]
-
-            colors = [None] * 128
-            for key, val in xcolors.items():
-                val = val.lstrip("#")
-                colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
-                set_up_colors(int(key, 2), colors[int(key, 2)], colors)
-
-            automaton = FhpIII(grid=input_grid)
-            title = f"LGCA {automaton.name}"
-            HexagonalGrid(
-                title=title,
-                automaton=automaton,
-                tile_size=tile_size,
-                colors=tuple(colors),
-                max_iteration=steps,
-                run=run,
-                fps=fps,
-                # background="#FFFFAA",
-            ).mainloop()
-
         case "fhp_ii":
             match pattern:
+                case "collision":
+                    width, height, tile_size, fps, mode = 300, 400, 2, -1, Lgca.MODE_DIE
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    solid_rectangle(
+                        grid=input_grid, width=50, height=50, value=0b0000100, offset={"top": -50, "left": 0}
+                    )
+                    solid_rectangle(grid=input_grid, width=50, height=50, value=0b100000, offset={"top": 50, "left": 0})
                 case "wiki":
                     width, height, tile_size, fps = 300, 200, 2, -1
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -226,24 +291,42 @@ def main(
                     solid_square(input_grid, height // 2, 0b111111)
                 case "random":
                     width, height, tile_size, fps = 400, 300, 2, -1
-                    input_grid = [[secrets.choice(range(128)) for _ in range(width)] for _ in range(height)]
+                    input_grid = [[secrets.choice(range(63)) for _ in range(width)] for _ in range(height)]
                 case "obstacle":
                     width, height, tile_size, fps = 400, 300, 2, -1
-
                     input_grid = [
-                        [rand_choice(range(128)) if rand_uniform() < 0.3 else 0 for col in range(width)]
+                        [
+                            rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
+                            for col in range(width)
+                        ]
                         for _ in range(height)
                     ]
 
-                    solid_circle(grid=input_grid, value=0, size=height // 7)
-
-                    # frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
+                    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
                     solid_rectangle(
                         grid=input_grid,
                         value=Lgca.OBSTACLE_BIT,
                         height=height // 3,
                         width=4,
                         offset={"left": width // 8 + 2, "top": 0},
+                    )
+                case "obstacle-bis":
+                    width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_DIE
+
+                    input_grid = [
+                        [rand_choice(range(127)) if rand_uniform() < 0.08 else 0 for col in range(width)]
+                        for _ in range(height)
+                    ]
+
+                    solid_circle(grid=input_grid, value=0, size=height // 5)
+                    solid_square(grid=input_grid, value=127, size=height // 12)
+
+                    solid_rectangle(
+                        grid=input_grid,
+                        value=Lgca.OBSTACLE_BIT,
+                        height=height // 3,
+                        width=4,
+                        offset={"left": 100, "top": 0},
                     )
                 case "single":
                     width, height, tile_size, fps = 17, 18, 64, 4
@@ -281,40 +364,15 @@ def main(
                         if value & mask:
                             input_grid[row + row_off][col + col_off] = mask
 
-            color_temp = {}
-            for i in range(0b111_1111 + 1):
-                if i.bit_count() not in color_temp:
-                    color_temp[i.bit_count()] = []
-                color_temp[i.bit_count()].append(i)
-
-            palette = generate_color_palette(len(color_temp))
-
-            xcolors = {}
-            for bits, values in color_temp.items():
-                for val in values:
-                    xcolors[f"{val:07b}"] = palette[bits]
-
-            colors = [None] * 128
-            for key, val in xcolors.items():
-                val = val.lstrip("#")
-                colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
-                set_up_colors(int(key, 2), colors[int(key, 2)], colors)
-
-            automaton = FhpII(grid=input_grid)
-            title = f"LGCA {automaton.name}"
-            HexagonalGrid(
-                title=title,
-                automaton=automaton,
-                tile_size=tile_size,
-                colors=tuple(colors),
-                max_iteration=steps,
-                run=run,
-                fps=fps,
-                # background="#FFFFAA",
-            ).mainloop()
-
         case "fhp_i":
             match pattern:
+                case "collision":
+                    width, height, tile_size, fps, mode = 300, 400, 2, -1, Lgca.MODE_DIE
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    solid_rectangle(
+                        grid=input_grid, width=50, height=50, value=0b0000100, offset={"top": -50, "left": 0}
+                    )
+                    solid_rectangle(grid=input_grid, width=50, height=50, value=0b100000, offset={"top": 50, "left": 0})
                 case "wiki":
                     width, height, tile_size, fps = 300, 200, 2, -1
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -355,20 +413,16 @@ def main(
                     dist = 3
                     x = dist - 1
 
-                    offsets = (
+                    offsets = [
                         (0b000100, -dist, 0),
                         (0b100000, dist, 0),
                         (0b000001, x, -dist),
                         (0b001000, -(dist - x), dist),
                         (0b000010, -(dist - x), -dist),
                         (0b010000, x, dist),
-                    )
+                    ]
 
                     input_grid[row][col] = Lgca.OBSTACLE_BIT
-
-                    # HONEYCOMB
-                    # for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
-                    #     input_grid[row + row_off][col + col_off] = 0b1000_0000
 
                     for mask, row_off, col_off in offsets:
                         if value & mask:
@@ -376,71 +430,21 @@ def main(
 
                     frame(grid=input_grid, value=Lgca.OBSTACLE_BIT)
 
-                    # for x in range(0, 12, 3):
-                    #     row, col = 1 + x, round(width / 2) + 1
-                    #     input_grid[row][col] = 1
-                    #     for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
-                    #         input_grid[row + row_off][col + col_off] = 3
-
-            colors = [None] * 64
-            for key, val in yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / "colors.yaml").open())[
-                "fhp_6bits"
-            ].items():
-                val = val.lstrip("#")
-                colors[int(key, 2)] = (int(val[:2], 16), int(val[2:4], 16), int(val[4:], 16))
-                set_up_colors(int(key, 2), colors[int(key, 2)], colors)
-
-            automaton = FhpI(grid=input_grid)
-            HexagonalGrid(
-                title=f"LGCA {automaton.name}",
-                automaton=automaton,
-                tile_size=tile_size,
-                colors=tuple(colors),
-                max_iteration=steps,
-                run=run,
-                fps=fps,
-            ).mainloop()
-
         case "hpp":
-
-            col_palette = """
-                0000:#000000
-
-                0001:#444444
-                0010:#444444
-                0100:#444444
-                1000:#444444
-
-                0011:#888888
-                0110:#888888
-                0101:#888888
-                1010:#888888
-                1001:#888888
-                1100:#888888
-
-                0111:#CCCCCC
-                1011:#CCCCCC
-                1101:#CCCCCC
-                1110:#CCCCCC
-
-                1111:#FFFFFF
-            """
-
-            colors = [0] * (2**7 + 16)
-
-            for row in col_palette.strip().split("\n"):
-                dat = row.strip()
-                if not dat:
-                    continue
-
-                binary, hexa = row.strip().split(":")
-                set_up_colors(binary=binary, hexa=hexa, colors=colors)
-
-            tile_size = 2
-            fps = -1
-            input_grid = [[0 for _ in range(width)] for _ in range(height)]
-
             match pattern:
+                case "collision":
+                    width, height, tile_size, fps, mode = 300, 400, 2, -1, Lgca.MODE_DIE
+                    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    solid_rectangle(grid=input_grid, width=50, height=50, value=0b0001, offset={"top": -50, "left": 0})
+                    solid_rectangle(grid=input_grid, width=50, height=50, value=0b0100, offset={"top": 50, "left": 0})
+
+                    # colors = get_color_map(num=4, reversed=True)
+                    # width, height, tile_size, fps, mode = 400, 400, 2, -1, Lgca.MODE_DIE
+                    # input_grid = [[0 for _ in range(width)] for _ in range(height)]
+                    # solid_circle(grid=input_grid, size=width // 10, value=15)
+                    # input_grid = [[random.choice(range(1, 16))
+                    #                if random.uniform(0, 1) < 0.6 else input_grid[r][c] for c in range(width)] for r in
+                    #               range(height)]
                 case "wiki":
                     width, height, tile_size, fps = 300, 200, 2, -1
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -503,13 +507,13 @@ def main(
 
                     frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=1)
 
-            automaton = Hpp(grid=input_grid)
-            SquareGrid(
-                title=f"LGCA {automaton.name}",
-                automaton=automaton,
-                tile_size=tile_size,
-                colors=tuple(colors),
-                max_iteration=steps,
-                run=run,
-                fps=fps,
-            ).mainloop()
+    automaton = automaton_class[model_name](grid=input_grid, mode=mode)
+    grid_class[model_name](
+        title=f"LGCA {automaton.name}",
+        automaton=automaton,
+        tile_size=tile_size,
+        colors=colors,
+        max_iteration=steps,
+        run=run,
+        fps=fps,
+    ).mainloop()

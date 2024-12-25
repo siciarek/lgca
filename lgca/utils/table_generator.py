@@ -10,7 +10,7 @@ BIT_COUNT: dict = {
 }
 
 
-def get_collisions(name: str = None) -> dict:
+def get_collisions(name: str | None = None) -> dict:
     collisions = yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / "collisions.yaml").open())
     if name is None:
         return collisions
