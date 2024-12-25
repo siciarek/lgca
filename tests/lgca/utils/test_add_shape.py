@@ -35,6 +35,28 @@ solid_circle_data_provider = (
     (solid_circle_input_dat[1], solid_circle_expected_dat[3], 41, 1),
 )
 
+line_horizontal_input_dat, line_horizontal_expected_dat = get_test_data("shapes/line_horizontal")
+line_horizontal_data_provider = ((line_horizontal_input_dat[0], line_horizontal_expected_dat[0], 9, 0, 0, 8),)
+
+line_vertical_input_dat, line_vertical_expected_dat = get_test_data("shapes/line_vertical")
+line_vertical_data_provider = ((line_vertical_input_dat[0], line_vertical_expected_dat[0], 1, 0, 0, 8),)
+
+
+@pytest.mark.parametrize("input_grid,expected,value,col,row_start,row_end", line_vertical_data_provider)
+def test_line_vertical(input_grid, expected, value, col, row_start, row_end):
+    grid = deepcopy(input_grid)
+    add_shape.line_vertical(grid=grid, value=value, col=len(grid) // 2, row_start=row_start, row_end=row_end)
+
+    assert grid == expected
+
+
+@pytest.mark.parametrize("input_grid,expected,value,row,col_start,col_end", line_horizontal_data_provider)
+def test_line_horizontal(input_grid, expected, value, row, col_start, col_end):
+    grid = deepcopy(input_grid)
+    add_shape.line_horizontal(grid=grid, value=value, row=row, col_start=col_start, col_end=col_end)
+
+    assert grid == expected
+
 
 @pytest.mark.parametrize("width,height,center", get_info_data_provider)
 def test_get_info(width, height, center):
