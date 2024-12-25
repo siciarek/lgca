@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.1.10](https://github.com/siciarek/lgca/releases/tag/0.1.10) - 2024-12-25
+
+<small>[Compare with 0.1.9](https://github.com/siciarek/lgca/compare/0.1.9...0.1.10)</small>
+
+### Bug Fixes
+
+- some invalid rules for fhp_iii collisions validated agains the Buick PHD lookup table, new shapes line horiz and vert ([21ba6a1](https://github.com/siciarek/lgca/commit/21ba6a172f0165aafa1daa47b313eead438bcd5e) by Jacek Siciarek).
+- some invalid rules for fhp_iii collisions validated agains the Buick PHD lookup table ([11dd717](https://github.com/siciarek/lgca/commit/11dd717885a13469a77d6a9ec5e781c6f1478f66) by Jacek Siciarek).
+- update tests ([0c27554](https://github.com/siciarek/lgca/commit/0c2755471991233baa171b670af9e9aebf92ab83) by Jacek Siciarek).
+- refactor the entrypoint ([13f1af6](https://github.com/siciarek/lgca/commit/13f1af6f8e1f2924854e707efff78426bb2f0ed8) by Jacek Siciarek).
+- improve code coverage ([f27a57b](https://github.com/siciarek/lgca/commit/f27a57bf1c6aa88b0a5d99f1577c1eee478ae0e9) by Jacek Siciarek).
+
 ## [0.1.9](https://github.com/siciarek/lgca/releases/tag/0.1.9) - 2024-12-23
 
 <small>[Compare with 0.1.8](https://github.com/siciarek/lgca/compare/0.1.8...0.1.9)</small>
