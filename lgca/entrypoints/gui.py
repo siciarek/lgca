@@ -1,5 +1,6 @@
 import secrets
 import random
+import json
 from collections.abc import Callable
 from functools import partial
 from collections import defaultdict
@@ -57,10 +58,10 @@ def get_color_map(num, reverse: bool = False, obstacle_color: str = "#AA0000"):
         color_palette.reverse()
 
     temp_map = defaultdict(dict)
-    color_map = [0] * 0x100
+    color_map = [0] * 256
 
     for i in range(2**num):
-        template = "{value:0" + str(num) + "b}"
+        template = f"{{value:0{num}b}}"
         key = template.format(value=i)
         bit_count = i.bit_count()
         temp_map[bit_count][key] = color_palette[bit_count]
@@ -78,12 +79,19 @@ def get_color_map(num, reverse: bool = False, obstacle_color: str = "#AA0000"):
                 int(val[4:], 0x10),
             )
             if not int_key & Lgca.REST_PARTICLE_BIT:
-                color_map[(int_key | Lgca.OBSTACLE_BIT)] = [w if w > 0 else int(val[:2], 0x10) for w in obstacle_color]
+                color_map[(int_key | Lgca.OBSTACLE_BIT)] = tuple(
+                    [w if w > 0 else int(val[:2], 0x10) for w in obstacle_color]
+                )
 
     while color_map[-1] == 0:
         color_map.pop()
 
     return tuple(color_map)
+
+
+def decode_json(ctx, param, value):
+    if value is not None:
+        return json.loads(value)
 
 
 @click.command()
@@ -132,6 +140,14 @@ def get_color_map(num, reverse: bool = False, obstacle_color: str = "#AA0000"):
     show_default=True,
     help="Automaton behavior when the particle reaches the edge.",
 )
+@click.option(
+    "-x",
+    "--extra-params",
+    type=str,
+    default={},
+    callback=decode_json,
+    help="Extra parameters provided to the application.",
+)
 def main(
     width: int,
     height: int,
@@ -143,6 +159,7 @@ def main(
     value: str,
     deterministic: bool,
     mode: str,
+    extra_params: dict,
 ):
     """
     Lattice Gas Cellular Automata
@@ -152,9 +169,11 @@ def main(
     [X] FHP III
     """
 
-    value = parse_value(value=value)
+    value: int = parse_value(value=value)
+    input_grid: list = [[0 for _ in range(width)] for _ in range(height)]
+    fps: int = -1
 
-    print(f"{value=} {value=:07b}")
+    print(f"{value=} {value=:07b} {extra_params=}")
 
     if deterministic:
         rand_choice: Callable = random.choice
@@ -166,16 +185,16 @@ def main(
 
     model_name = model_name.lower()
 
-    automaton_class = {"hpp": Hpp, "fhp_i": FhpI, "fhp_ii": FhpII, "fhp_iii": FhpIII}
-
-    grid_class = {
-        "hpp": SquareGrid,
-        "fhp_i": HexagonalGrid,
-        "fhp_ii": HexagonalGrid,
-        "fhp_iii": HexagonalGrid,
+    classes = {
+        "hpp": (Hpp, SquareGrid),
+        "fhp_i": (FhpI, HexagonalGrid),
+        "fhp_ii": (FhpII, HexagonalGrid),
+        "fhp_iii": (FhpIII, HexagonalGrid),
     }
 
     colors = get_color_map(num=BIT_COUNT[model_name])
+
+    automaton_class, grid_class = classes[model_name]
 
     match model_name:
         case "fhp_iii":
@@ -488,27 +507,35 @@ def main(
                     )
 
                 case "test":
-                    width, height, tile_size, fps = 19, 19, 54, 4
+                    width, height, tile_size, fps = 17, 17, 54, 4
 
                     input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
-                    value = int(value)
+                    row, col = height // 2, width // 2
 
-                    if value & 0b0001:
-                        input_grid[1][width // 2] = 1
-                    if value & 0b0010:
-                        input_grid[height // 2][1] = 2
-                    if value & 0b0100:
-                        input_grid[height - 2][width // 2] = 4
-                    if value & 0b1000:
-                        input_grid[height // 2][width - 2] = 8
+                    dist = 4
 
-                    input_grid[height // 2][width // 2 + 0] = Lgca.OBSTACLE_BIT
+                    offsets = [
+                        (0b0001, -dist, 0),
+                        (0b0010, 0, -dist),
+                        (0b0100, dist, 0),
+                        (0b1000, 0, dist),
+                    ]
+
+                    if value == 0:
+                        value = 0xF
+
+                    for mask, row_off, col_off in offsets:
+                        if value & mask:
+                            input_grid[row + row_off][col + col_off] = mask
+
+                    if extra_params.get("center", True):
+                        input_grid[row][col] = Lgca.OBSTACLE_BIT
 
                     frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=1)
 
-    automaton = automaton_class[model_name](grid=input_grid, mode=mode)
-    grid_class[model_name](
+    automaton = automaton_class(grid=input_grid, mode=mode)
+    grid_class(
         title=f"LGCA {automaton.name}",
         automaton=automaton,
         tile_size=tile_size,
