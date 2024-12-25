@@ -34,6 +34,16 @@ def arbitrary_single_point(grid: list, row: int, col: int, value: int = 1):
     grid[row][col] = value
 
 
+def line_horizontal(grid: list, value: int, row: int, col_start: int, col_end: int):
+    for col in range(col_start, col_end + 1):
+        grid[row][col] = value
+
+
+def line_vertical(grid: list, col: int, row_start: int, row_end: int, value: int):
+    for row in range(row_start, row_end + 1):
+        grid[row][col] = value
+
+
 def solid_rectangle(grid: list, width: int, height: int, value: int, offset: dict | None = None):
     info = get_info(grid=grid)
     left_offset = offset.get("left") if offset else 0
