@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Callable
 from functools import partial
-from collections import defaultdict
+
 import click
 from lgca.automata import (
     Lgca,
@@ -24,70 +24,11 @@ from lgca.utils.add_shape import (
     solid_circle,
 )
 from lgca.utils.table_generator import BIT_COUNT
-
-
-def parse_value(value: str) -> int:
-    if "0b" in value:
-        return int(value.replace("0b", ""), 2)
-
-    if "0o" in value:
-        return int(value.replace("0o", ""), 8)
-
-    if "0x" in value:
-        return int(value.replace("0x", ""), 16)
-
-    return int(value, 10)
-
-
-def get_color_palette(num: int):
-    palette, step, color = [], round(0xFF / num), 0xFF
-
-    while len(palette) < num + 1:
-        palette.append(f"#{color:02X}{color:02X}{color:02X}")
-        color -= step
-
-    if palette[-1] != "#000000":
-        palette[-1] = "#000000"
-
-    return palette[::-1]
-
-
-def get_color_map(num, reverse: bool = False, obstacle_color: str = "#AA0000"):
-    color_palette = get_color_palette(num)
-
-    if reverse:
-        color_palette.reverse()
-
-    temp_map = defaultdict(dict)
-    color_map = [0] * 256
-
-    for i in range(2**num):
-        template = f"{{value:0{num}b}}"
-        key = template.format(value=i)
-        bit_count = i.bit_count()
-        temp_map[bit_count][key] = color_palette[bit_count]
-
-    oc: str = obstacle_color.lstrip("#")
-    obstacle_color = (int(oc[:2], 0x10), int(oc[2:4], 0x10), int(oc[4:], 0x10))
-
-    for _, values in temp_map.items():
-        for key, val in values.items():
-            int_key = int(key, 2)
-            val = val.lstrip("#")
-            color_map[int_key] = (
-                int(val[:2], 0x10),
-                int(val[2:4], 0x10),
-                int(val[4:], 0x10),
-            )
-            if not int_key & Lgca.REST_PARTICLE_BIT:
-                color_map[(int_key | Lgca.OBSTACLE_BIT)] = tuple(
-                    [w if w > 0 else int(val[:2], 0x10) for w in obstacle_color]
-                )
-
-    while color_map[-1] == 0:
-        color_map.pop()
-
-    return tuple(color_map)
+from lgca.utils.common import (
+    parse_value,
+    get_color_map,
+    decode_pattern_file,
+)
 
 
 def decode_json(ctx, param, value):
@@ -482,26 +423,15 @@ def main(
 
                         frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=1)
     else:
-        pattern_file = Path(pattern)
-        if not pattern_file.is_file():
-            raise click.FileError(pattern_file.as_posix(), "pattern not available.")
-
-        data = json.load(pattern_file.open())
-        models = data.get("models", ["hhp", "fhp_i", "fhp_ii", "fhp_iii"])
-
-        if model_name not in models:
-            raise click.ClickException(f"Model {model_name!r} is not supported by pattern {pattern_file.as_posix()!r}")
-
-        tile_size = data.get("tile_size", 2)
-        obstacle_color = data.get("obstacle_color", "#FF0000")
-        mode = data.get("mode", Lgca.MODE_TORUS)
-        fps = data.get("fps", -1)
-        input_grid = data["data"]
+        input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
+            pattern_file=Path(pattern),
+            model_name=model_name,
+        )
 
     automaton = automaton_class(grid=input_grid, mode=mode)
     colors = get_color_map(num=BIT_COUNT[model_name], obstacle_color=obstacle_color)
     grid_class(
-        title=f"LGCA {automaton.name}",
+        title=f"{Lgca.name} {automaton.name}",
         automaton=automaton,
         tile_size=tile_size,
         colors=colors,

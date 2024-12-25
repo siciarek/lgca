@@ -21,9 +21,9 @@ classifiers = [
 dependencies = [
     "pygame~=2.5.2",
     "pyaml~=24.12.1",
-    "types-PyYAML~=6.0.12.20241221",
     "mypy~=1.14.0",
     "click~=8.1.7",
+    "pillow~=11.0.0",
 ]
 
 [tool.mypy]
@@ -79,6 +79,7 @@ version = { attr = "lgca.__version__" }
 
 [project.scripts]
 lgca = "lgca.entrypoints:gui.main"
+gen = "lgca.entrypoints:generate.main"
 
 [tool.coverage.run]
 omit = [
