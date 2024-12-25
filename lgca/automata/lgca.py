@@ -20,8 +20,6 @@ class Lgca(ABC):
         self.collision_table = get_config(self.name.replace(" ", "_").lower())
         self.mode = mode
 
-        print(f"model={self.name}, {mode=}")
-
     def __next__(self):
         self.collision()
         self.free_translation()

@@ -12,11 +12,11 @@ def get_test_grid_from_file(file: Path):
 
         for line in fp:
             line = line.strip()
-            if not line:
+            if len(line) <= 5:
                 curr_idx += 1
                 continue
             line = line.replace(".", "0")
-            row = [int(i) for i in list(line)]
+            row = [int(i) if i.isdigit() else ord(i) - (ord("A") - 10) for i in list(line)]
             grid[curr_idx].append(row)
 
     return grid
