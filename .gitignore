@@ -149,3 +149,5 @@ coverage-reports/
 /tmp/
 /run.py
 /Mekfile.mk
+/.animated/
+/*.png
