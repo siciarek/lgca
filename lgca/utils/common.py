@@ -32,23 +32,18 @@ def decode_pattern_file(pattern_file: Path, model_name: str):
     return input_grid, tile_size, mode, fps, obstacle_color
 
 
-def parse_value(value: str) -> int:
-    if "0b" in value:
-        return int(value.replace("0b", ""), 2)
-
-    if "0o" in value:
-        return int(value.replace("0o", ""), 8)
-
-    if "0x" in value:
-        return int(value.replace("0x", ""), 16)
+def parse_integer_value(value: str) -> int:
+    for base, pref in {2: "0b", 8: "0o", 16: "0x"}.items():
+        if pref in value:
+            return int(value.replace(pref, ""), base)
 
     return int(value, 10)
 
 
-def get_color_palette(num: int):
-    palette, step, color = [], round(0xFF / num), 0xFF
+def get_color_palette(bit_count: int):
+    palette, step, color = [], round(0xFF / bit_count), 0xFF
 
-    while len(palette) < num + 1:
+    while len(palette) < bit_count + 1:
         palette.append(f"#{color:02X}{color:02X}{color:02X}")
         color -= step
 
@@ -58,8 +53,8 @@ def get_color_palette(num: int):
     return palette[::-1]
 
 
-def get_color_map(num, reverse: bool = False, obstacle_color: str = "#AA0000"):
-    color_palette = get_color_palette(num)
+def get_color_map(bit_count, reverse: bool = False, obstacle_color: str = "#AA0000"):
+    color_palette = get_color_palette(bit_count)
 
     if reverse:
         color_palette.reverse()
@@ -67,29 +62,22 @@ def get_color_map(num, reverse: bool = False, obstacle_color: str = "#AA0000"):
     temp_map = defaultdict(dict)
     color_map = [0] * 256
 
-    for i in range(2**num):
-        template = f"{{value:0{num}b}}"
-        key = template.format(value=i)
+    for i in range(2**bit_count):
+        tmpl = f"{{value:0{bit_count}b}}"
+        key = tmpl.format(value=i)
         bit_count = i.bit_count()
         temp_map[bit_count][key] = color_palette[bit_count]
 
-    oc: str = obstacle_color.lstrip("#")
-    obstacle_color = (int(oc[:2], 0x10), int(oc[2:4], 0x10), int(oc[4:], 0x10))
+    obstacle_color = decode_color(color=obstacle_color)
 
     for _, values in temp_map.items():
         for key, val in values.items():
-            int_key = int(key, 2)
-            rgb = val.lstrip("#")
-
-            color_map[int_key] = (
-                int(rgb[:2], 0x10),
-                int(rgb[2:4], 0x10),
-                int(rgb[4:], 0x10),
-            )
+            int_key, rgb = int(key, 2), decode_color(color=val)
+            color_map[int_key] = rgb
 
             if not int_key & Lgca.REST_PARTICLE_BIT:
                 obstacle_key = int_key | Lgca.OBSTACLE_BIT
-                color_map[obstacle_key] = tuple([w if w > 0 else int(rgb[:2], 0x10) for w in obstacle_color])
+                color_map[obstacle_key] = tuple([c if c > 0 else rgb[0] for c in obstacle_color])
 
     while color_map[-1] == 0:
         color_map.pop()

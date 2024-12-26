@@ -5,7 +5,7 @@ from PIL import Image
 from lgca.automata import (
     Hpp,
 )
-from lgca.utils.common import decode_pattern_file, get_color_palette, decode_color
+from lgca.utils.common import decode_pattern_file, get_color_map
 from lgca.utils.table_generator import BIT_COUNT
 
 
@@ -17,7 +17,7 @@ from lgca.utils.table_generator import BIT_COUNT
 @click.option(
     "-p",
     "--pattern",
-    default="none",
+    default="",
     type=str,
     show_default=False,
     help="Select initial state pattern.",
@@ -27,16 +27,16 @@ def main(steps: int, model_name: str, pattern: str):
 
     pattern_file = Path(pattern)
     if not pattern_file.is_file():
-        raise click.FileError(pattern_file.as_posix(), "pattern not found")
+        raise click.FileError(pattern_file.as_posix(), "pattern not found.")
 
     step_tmpl = f"STEP: {{step:0{len(str(steps))}}}"
     file_tmpl = f"{pattern_file.stem}-{{model_name}}-{{step:0{len(str(steps))}}}.png"
 
-    color_palette = get_color_palette(num=BIT_COUNT[model_name])
     input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
         pattern_file=pattern_file,
         model_name=model_name,
     )
+    color_map = get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color)
 
     if model_name == "hpp":
         automaton = Hpp(
@@ -44,7 +44,7 @@ def main(steps: int, model_name: str, pattern: str):
             mode=mode,
         )
     else:
-        return
+        raise click.ClickException(f"Model {model_name} is not supported yet.")
 
     while steps:
         next(automaton)
@@ -53,7 +53,7 @@ def main(steps: int, model_name: str, pattern: str):
 
     bitmap_array: list = []
     for row in input_grid:
-        bitmap_array.append([list(decode_color(color_palette[cell.bit_count()])) for cell in row])
+        bitmap_array.append([color_map[cell] for cell in row])
 
     img: Image = Image.fromarray(np.array(np.uint8(bitmap_array)))
     img.save(file_tmpl.format(model_name=model_name, step=automaton.step))

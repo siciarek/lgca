@@ -25,7 +25,7 @@ from lgca.utils.add_shape import (
 )
 from lgca.utils.table_generator import BIT_COUNT
 from lgca.utils.common import (
-    parse_value,
+    parse_integer_value,
     get_color_map,
     decode_pattern_file,
 )
@@ -114,7 +114,7 @@ def main(
     [X] FHP III
     """
 
-    value: int = parse_value(value=value)
+    value: int = parse_integer_value(value=value)
     input_grid: list = [[0 for _ in range(width)] for _ in range(height)]
     fps: int = -1
 
@@ -429,7 +429,7 @@ def main(
         )
 
     automaton = automaton_class(grid=input_grid, mode=mode)
-    colors = get_color_map(num=BIT_COUNT[model_name], obstacle_color=obstacle_color)
+    colors = get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color)
     grid_class(
         title=f"{Lgca.name} {automaton.name}",
         automaton=automaton,
