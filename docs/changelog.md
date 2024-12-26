@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.2.2](https://github.com/siciarek/lgca/releases/tag/0.2.2) - 2024-12-26
+
+<small>[Compare with 0.2.1](https://github.com/siciarek/lgca/compare/0.2.1...0.2.2)</small>
+
+### Bug Fixes
+
+- refactor gui entrypoint ([6d2c183](https://github.com/siciarek/lgca/commit/6d2c183cc532325b80ab69a8eb78c6acff9ee770) by Jacek Siciarek).
+- test pattern offset ([2163926](https://github.com/siciarek/lgca/commit/21639269d4409afdadcd25df49a3daebc5c80b9f) by Jacek Siciarek).
+- refactor gui ([f641900](https://github.com/siciarek/lgca/commit/f641900873080d3c2afd43f9f0270a26e527f35e) by Jacek Siciarek).
+
+### Features
+
+- update automaton image generator ([692f321](https://github.com/siciarek/lgca/commit/692f321c426188dac14e47e87775aba4c232a695) by Jacek Siciarek).
+
+### Chore
+
+- bump up version to 0.2.2 ([6be4e0c](https://github.com/siciarek/lgca/commit/6be4e0cb442ed5a5409345e76dfd04c5a423c5bf) by Jacek Siciarek).
+- update pypi deployment configuration ([13e95bd](https://github.com/siciarek/lgca/commit/13e95bd10d495483ba0c7b017d47855d89dce022) by Jacek Siciarek).
+
 ## [0.2.1](https://github.com/siciarek/lgca/releases/tag/0.2.1) - 2024-12-26
 
 <small>[Compare with 0.2.0](https://github.com/siciarek/lgca/compare/0.2.0...0.2.1)</small>
