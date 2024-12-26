@@ -56,4 +56,5 @@ def main(steps: int, model_name: str, pattern: str):
         bitmap_array.append([color_map[cell] for cell in row])
 
     img: Image = Image.fromarray(np.array(np.uint8(bitmap_array)))
+    img = img.resize(size=[elem * tile_size for elem in img.size], resample=Image.Resampling.NEAREST)
     img.save(file_tmpl.format(model_name=model_name, step=automaton.step))

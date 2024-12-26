@@ -150,7 +150,7 @@ def decode_json_callback(ctx, param, value):
     "-m",
     "--mode",
     default=Lgca.MODE_TORUS,
-    type=click.Choice(["torus", "die"]),
+    type=click.Choice([Lgca.MODE_TORUS, Lgca.MODE_DIE]),
     show_default=True,
     help="Automaton behavior when the particle reaches the edge.",
 )
@@ -183,11 +183,11 @@ def main(
     [X] FHP III
     """
 
+    model_name: str = model_name.lower()
     value: int = parse_integer_value(value=value)
-    input_grid: list = [[0 for _ in range(width)] for _ in range(height)]
-    fps: int = -1
 
-    print(f"{value=} {value=:07b} {extra_params=}")
+    fps: int = -1
+    obstacle_color: str = "#880000"
 
     if deterministic:
         rand_choice: Callable = random.choice
@@ -197,7 +197,19 @@ def main(
         rand_choice: Callable = secrets.choice
         rand_uniform: partial | Callable = secrets.SystemRandom().random
 
-    model_name = model_name.lower()
+    input_grid: list[list] = [
+        [rand_choice(range(2 ** BIT_COUNT[model_name] - 1)) for _ in range(width)] for _ in range(height)
+    ]
+
+    if pattern == "test":
+        width, height, tile_size, fps = 17, 17, 54, 4
+        input_grid = generate_test(
+            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
+        )
+    elif pattern == "obstacle":
+        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
+
+    print(f"{value=} {value=:07b} {extra_params=}")
 
     classes = {
         "hpp": (Hpp, SquareGrid),
@@ -207,29 +219,10 @@ def main(
     }
     automaton_class, grid_class = classes[model_name]
 
-    obstacle_color = "#880000"
-
-    predefined_patterns = {"random", "alt", "single", "obstacle", "test"}
-
-    if pattern in predefined_patterns:
+    if pattern in {"random", "obstacle", "test"}:
         match model_name:
-            case "fhp_iii":
-                match pattern:
-                    case "obstacle":
-                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
-                    case "test":
-                        width, height, tile_size, fps = 17, 17, 54, 4
-                        input_grid = generate_test(
-                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
-                        )
-
             case "fhp_ii":
                 match pattern:
-                    case "random":
-                        width, height, tile_size, fps = 400, 300, 2, -1
-                        input_grid = [[secrets.choice(range(63)) for _ in range(width)] for _ in range(height)]
-                    case "obstacle":
-                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
                     case "obstacle-bis":
                         width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_DIE
 
@@ -248,32 +241,6 @@ def main(
                             width=4,
                             offset={"left": 100, "top": 0},
                         )
-                    case "test":
-                        width, height, tile_size, fps = 17, 17, 54, 4
-                        input_grid = generate_test(
-                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
-                        )
-
-            case "fhp_i":
-                match pattern:
-                    case "obstacle":
-                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
-                    case "test":
-                        width, height, tile_size, fps = 17, 17, 54, 4
-                        input_grid = generate_test(
-                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
-                        )
-
-            case "hpp":
-                match pattern:
-                    case "obstacle":
-                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
-                    case "test":
-                        width, height, tile_size, fps = 17, 17, 54, 4
-                        input_grid = generate_test(
-                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
-                        )
-
     else:
         input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
             pattern_file=Path(pattern),
