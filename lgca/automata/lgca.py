@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 import secrets
 from lgca.utils.config_loader import get_config
 
@@ -6,6 +6,7 @@ from lgca.utils.config_loader import get_config
 class Lgca(ABC):
     name: str = "LGCA"
     masks: tuple = tuple()
+    neighborhood: tuple = tuple()
     OBSTACLE_BIT: int = 0b1000_0000
     REST_PARTICLE_BIT: int = 0b0100_0000
     MODE_TORUS: str = "torus"
@@ -25,12 +26,6 @@ class Lgca(ABC):
         self.free_translation()
         self.step += 1
 
-        return self.grid
-
-    @abstractmethod
-    def get_neighborhood(self, col):
-        """Needs to be implemented."""
-
     def collision(self):
         for row in range(self.height):
             for col in range(self.width):
@@ -46,11 +41,14 @@ class Lgca(ABC):
                 new_val = self.temp_grid[row][col] & self.OBSTACLE_BIT
                 new_val |= self.temp_grid[row][col] & self.REST_PARTICLE_BIT
 
-                for idx, (row_off, col_off) in enumerate(self.get_neighborhood(col=col)):
+                for idx, (row_off, col_off) in enumerate(self.neighborhood[col % 2]):
                     n_row = row + row_off
                     n_col = col + col_off
 
                     if self.mode == self.MODE_DIE and not (0 <= n_row < self.height and 0 <= n_col < self.width):
+                        continue
+
+                    if (0 <= n_row < self.height and 0 <= n_col < self.width) and not self.temp_grid[n_row][n_col]:
                         continue
 
                     # Torus mode:

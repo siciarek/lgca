@@ -10,6 +10,7 @@ class Hpp(Lgca):
         0b0010,
         0b0100,
     )
-
-    def get_neighborhood(self, col):
-        return settings.VON_NEUMANN_NEIGHBORHOOD.values()
+    neighborhood: tuple = (
+        settings.VON_NEUMANN_NEIGHBORHOOD.values(),
+        settings.VON_NEUMANN_NEIGHBORHOOD.values(),
+    )

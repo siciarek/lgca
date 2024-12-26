@@ -1,0 +1,59 @@
+import numpy as np
+from pathlib import Path
+import click
+from PIL import Image
+from lgca.automata import (
+    Hpp,
+)
+from lgca.utils.common import decode_pattern_file, get_color_palette, decode_color
+from lgca.utils.table_generator import BIT_COUNT
+
+
+@click.command()
+@click.option("-s", "--steps", default=0, show_default=True, help="Number of steps.")
+@click.option(
+    "-n", "--model-name", type=click.Choice(["HPP", "hpp"]), show_default=True, default="hpp", help="Model name."
+)
+@click.option(
+    "-p",
+    "--pattern",
+    default="none",
+    type=str,
+    show_default=False,
+    help="Select initial state pattern.",
+)
+def main(steps: int, model_name: str, pattern: str):
+    """Generate image of LGCA."""
+
+    pattern_file = Path(pattern)
+    if not pattern_file.is_file():
+        raise click.FileError(pattern_file.as_posix(), "pattern not found")
+
+    step_tmpl = f"STEP: {{step:0{len(str(steps))}}}"
+    file_tmpl = f"{pattern_file.stem}-{{model_name}}-{{step:0{len(str(steps))}}}.png"
+
+    color_palette = get_color_palette(num=BIT_COUNT[model_name])
+    input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
+        pattern_file=pattern_file,
+        model_name=model_name,
+    )
+
+    if model_name == "hpp":
+        automaton = Hpp(
+            grid=input_grid,
+            mode=mode,
+        )
+    else:
+        return
+
+    while steps:
+        next(automaton)
+        print(step_tmpl.format(step=automaton.step), end="\r")
+        steps -= 1
+
+    bitmap_array: list = []
+    for row in input_grid:
+        bitmap_array.append([list(decode_color(color_palette[cell.bit_count()])) for cell in row])
+
+    img: Image = Image.fromarray(np.array(np.uint8(bitmap_array)))
+    img.save(file_tmpl.format(model_name=model_name, step=automaton.step))

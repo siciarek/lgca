@@ -4,8 +4,16 @@ from collections import defaultdict
 from lgca.automata import Lgca
 
 
-def decode_pattern_file(pattern_file: Path, model_name: str):
+def decode_color(color: str):
+    color = color.lstrip("#")
+    return (
+        int(color[:2], 0x10),
+        int(color[2:4], 0x10),
+        int(color[4:], 0x10),
+    )
 
+
+def decode_pattern_file(pattern_file: Path, model_name: str):
     if not pattern_file.is_file():
         raise FileNotFoundError(pattern_file.as_posix())
 

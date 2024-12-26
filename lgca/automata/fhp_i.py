@@ -12,6 +12,4 @@ class FhpI(Lgca):
         0b000010,
         0b000100,
     )
-
-    def get_neighborhood(self, col):
-        return settings.HONEYCOMB[col % 2]
+    neighborhood = settings.HONEYCOMB
