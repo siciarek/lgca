@@ -76,14 +76,14 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
     return input_grid
 
 
-def generate_obstacle(model_name: str):
+def generate_obstacle(model_name: str, density: float = 0.3):
     width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
 
     input_grid = [
         [
             (
                 secrets.choice(range(2 ** BIT_COUNT[model_name]))
-                if secrets.SystemRandom().random() < 0.3 and col < width // 2
+                if secrets.SystemRandom().random() < density and col < width // 2
                 else 0
             )
             for col in range(width)
@@ -208,7 +208,7 @@ def main(
         rand_uniform: partial | Callable = secrets.SystemRandom().random
 
     input_grid: list[list] = [
-        [rand_choice(range(2 ** BIT_COUNT[model_name] - 1)) for _ in range(width)] for _ in range(height)
+        [rand_choice(range(2 ** BIT_COUNT[model_name])) for _ in range(width)] for _ in range(height)
     ]
 
     if pattern == "test":
@@ -236,7 +236,7 @@ def main(
                         width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_DIE
 
                         input_grid = [
-                            [rand_choice(range(127)) if rand_uniform() < 0.08 else 0 for col in range(width)]
+                            [rand_choice(range(2 ** BIT_COUNT[model_name])) if rand_uniform() < 0.08 else 0 for col in range(width)]
                             for _ in range(height)
                         ]
 
