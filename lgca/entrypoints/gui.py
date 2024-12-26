@@ -236,7 +236,10 @@ def main(
                         width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_DIE
 
                         input_grid = [
-                            [rand_choice(range(2 ** BIT_COUNT[model_name])) if rand_uniform() < 0.08 else 0 for col in range(width)]
+                            [
+                                rand_choice(range(2 ** BIT_COUNT[model_name])) if rand_uniform() < 0.08 else 0
+                                for col in range(width)
+                            ]
                             for _ in range(height)
                         ]
 

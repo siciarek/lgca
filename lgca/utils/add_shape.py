@@ -39,7 +39,7 @@ def line_horizontal(grid: list, value: int, row: int, col_start: int, col_end: i
         grid[row][col] = value
 
 
-def line_vertical(grid: list,  value: int, col: int, row_start: int, row_end: int):
+def line_vertical(grid: list, value: int, col: int, row_start: int, row_end: int):
     for row in range(row_start, row_end + 1):
         grid[row][col] = value
 
