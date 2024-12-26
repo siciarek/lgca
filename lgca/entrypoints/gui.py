@@ -31,7 +31,76 @@ from lgca.utils.common import (
 )
 
 
-def decode_json(ctx, param, value):
+def generate_test(model_name: str, extra_params: dict, height: int, value: int, width: int, dist: int = 4):
+    input_grid = [[0 for _ in range(width)] for _ in range(height)]
+    row, col = height // 2, width // 2
+
+    x = dist - 1
+
+    if model_name in ("fhp_ii", "fhp_iii"):
+        offsets = [
+            (0b0000100, -dist, 0),
+            (0b0100000, dist, 0),
+            (0b0000001, x, -dist),
+            (0b0001000, -(dist - x), dist),
+            (0b0000010, -(dist - x), -dist),
+            (0b0010000, x, dist),
+            (Lgca.REST_PARTICLE_BIT, 0, 0),
+        ]
+    elif model_name == "fhp_i":
+        offsets = [
+            (0b0000100, -dist, 0),
+            (0b0100000, dist, 0),
+            (0b0000001, x, -dist),
+            (0b0001000, -(dist - x), dist),
+            (0b0000010, -(dist - x), -dist),
+            (0b0010000, x, dist),
+        ]
+    elif model_name == "hpp":
+        offsets = [
+            (0b0001, -dist, 0),
+            (0b0010, 0, -dist),
+            (0b0100, dist, 0),
+            (0b1000, 0, dist),
+        ]
+
+    if extra_params.get("center", False):
+        input_grid[row][col] = Lgca.OBSTACLE_BIT
+    for mask, row_off, col_off in offsets:
+        if value & mask:
+            input_grid[row + row_off][col + col_off] = mask
+    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT)
+    return input_grid
+
+
+def generate_obstacle(model_name: str):
+    width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
+
+    input_grid = [
+        [
+            (
+                secrets.choice(range(2 ** BIT_COUNT[model_name]))
+                if secrets.SystemRandom().random() < 0.3 and col < width // 2
+                else 0
+            )
+            for col in range(width)
+        ]
+        for _ in range(height)
+    ]
+
+    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
+    solid_rectangle(
+        grid=input_grid,
+        value=Lgca.OBSTACLE_BIT,
+        height=height // 3,
+        width=4,
+        offset={"left": width // 8 + 2, "top": 0},
+    )
+
+    return input_grid, width, height, tile_size, fps, mode
+
+
+def decode_json_callback(ctx, param, value):
     return json.loads(value) if value is not None else None
 
 
@@ -90,7 +159,7 @@ def decode_json(ctx, param, value):
     "--extra-params",
     type=str,
     default={},
-    callback=decode_json,
+    callback=decode_json_callback,
     help="Extra parameters provided to the application.",
 )
 def main(
@@ -146,87 +215,13 @@ def main(
         match model_name:
             case "fhp_iii":
                 match pattern:
-                    case "random":
-                        width, height, tile_size, fps = 400, 300, 2, -1
-                        input_grid = [[secrets.choice(range(128)) for _ in range(width)] for _ in range(height)]
                     case "obstacle":
-                        width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
-
-                        input_grid = [
-                            [
-                                rand_choice(range(127)) if rand_uniform() < 0.3 and col < width // 2 else 0
-                                for col in range(width)
-                            ]
-                            for _ in range(height)
-                        ]
-
-                        solid_rectangle(
-                            grid=input_grid,
-                            value=Lgca.OBSTACLE_BIT,
-                            height=height // 3,
-                            width=4,
-                            offset={"left": 50, "top": 0},
-                        )
-                        width, height, tile_size, fps = 400, 300, 2, -1
-                        # input_grid = [
-                        #     [rand_choice(range(128)) if col < width // 2 and rand_uniform() < 0.3 else 0 for col in
-                        #      range(width)]
-                        #     for _ in range(height)
-                        # ]
-
-                        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
-
-                        # solid_circle(grid=input_grid, value=0, size=height // 5)
-                        # solid_square(grid=input_grid, value=127, size=height // 12)
-
-                        # solid_circle(
-                        #     grid=input_grid,
-                        #     size=1 + height // 4,
-                        #     value=Lgca.OBSTACLE_BIT,
-                        #     col_offset=80,
-                        # )
-                        # solid_rectangle(
-                        #     grid=input_grid,
-                        #     value=Lgca.OBSTACLE_BIT,
-                        #     height=height // 3,
-                        #     width=4,
-                        #     offset={"left": width // 8 + 2, "top": 0},
-                        # )
-                    case "single":
-                        width, height, tile_size, fps = 17, 18, 64, 4
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                        row, col = height // 2, width // 2
-
-                        input_grid[row][col] = value
+                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
                     case "test":
-                        width, height, tile_size, fps = 19, 19, 60, 4
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                        row, col = height // 2, width // 2
-
-                        dist = 3
-                        x = dist - 1
-
-                        offsets = (
-                            (0b1000000, 0, 0),
-                            (0b0000100, -dist, 0),
-                            (0b0100000, dist, 0),
-                            (0b0000001, x, -dist),
-                            (0b0001000, -(dist - x), dist),
-                            (0b0000010, -(dist - x), -dist),
-                            (0b0010000, x, dist),
+                        width, height, tile_size, fps = 19, 19, 54, 4
+                        input_grid = generate_test(
+                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
                         )
-
-                        # input_grid[row][col] = 0b1000_0000
-
-                        # HONEYCOMB
-                        # for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
-                        #     input_grid[row + row_off][col + col_off] = 0b1000_0000
-
-                        frame(grid=input_grid, value=0b1000_0000)
-
-                        for mask, row_off, col_off in offsets:
-                            if value & mask:
-                                input_grid[row + row_off][col + col_off] = mask
 
             case "fhp_ii":
                 match pattern:
@@ -234,23 +229,7 @@ def main(
                         width, height, tile_size, fps = 400, 300, 2, -1
                         input_grid = [[secrets.choice(range(63)) for _ in range(width)] for _ in range(height)]
                     case "obstacle":
-                        width, height, tile_size, fps = 400, 300, 2, -1
-                        input_grid = [
-                            [
-                                rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
-                                for col in range(width)
-                            ]
-                            for _ in range(height)
-                        ]
-
-                        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
-                        solid_rectangle(
-                            grid=input_grid,
-                            value=Lgca.OBSTACLE_BIT,
-                            height=height // 3,
-                            width=4,
-                            offset={"left": width // 8 + 2, "top": 0},
-                        )
+                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
                     case "obstacle-bis":
                         width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_DIE
 
@@ -269,159 +248,32 @@ def main(
                             width=4,
                             offset={"left": 100, "top": 0},
                         )
-                    case "single":
-                        width, height, tile_size, fps = 17, 18, 64, 4
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                        row, col = height // 2, width // 2
-
-                        input_grid[row][col] = value
                     case "test":
-                        width, height, tile_size, fps = 19, 19, 60, 4
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                        row, col = height // 2, width // 2
-
-                        dist = 3
-                        x = dist - 1
-
-                        offsets = (
-                            (0b1000000, 0, 0),
-                            (0b000100, -dist, 0),
-                            (0b100000, dist, 0),
-                            (0b000001, x, -dist),
-                            (0b001000, -(dist - x), dist),
-                            (0b000010, -(dist - x), -dist),
-                            (0b010000, x, dist),
+                        width, height, tile_size, fps = 19, 19, 54, 4
+                        input_grid = generate_test(
+                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
                         )
-
-                        # input_grid[row][col] = 0b1000_0000
-
-                        # HONEYCOMB
-                        # for (row_off, col_off) in settings.HONEYCOMB[col % 2]:
-                        #     input_grid[row + row_off][col + col_off] = 0b1000_0000
-
-                        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT)
-
-                        for mask, row_off, col_off in offsets:
-                            if value & mask:
-                                input_grid[row + row_off][col + col_off] = mask
 
             case "fhp_i":
                 match pattern:
-                    case "random":
-                        width, height, tile_size, fps = 400, 300, 2, -1
-                        input_grid = [[secrets.choice(range(64)) for _ in range(width)] for _ in range(height)]
                     case "obstacle":
-                        width, height, tile_size, fps = 400, 300, 2, -1
-                        input_grid = [
-                            [
-                                rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
-                                for col in range(width)
-                            ]
-                            for _ in range(height)
-                        ]
-
-                        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
-                        solid_rectangle(
-                            grid=input_grid,
-                            value=Lgca.OBSTACLE_BIT,
-                            height=height // 3,
-                            width=4,
-                            offset={"left": width // 8 + 2, "top": 0},
-                        )
-                    case "single":
-                        width, height, tile_size, fps = 17, 18, 64, 4
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                        row, col = height // 2, width // 2
-
-                        input_grid[row][col] = value
+                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
                     case "test":
-                        width, height, tile_size, fps = 19, 19, 60, 4
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                        row, col = height // 2, width // 2
-
-                        dist = 3
-                        x = dist - 1
-
-                        offsets = [
-                            (0b000100, -dist, 0),
-                            (0b100000, dist, 0),
-                            (0b000001, x, -dist),
-                            (0b001000, -(dist - x), dist),
-                            (0b000010, -(dist - x), -dist),
-                            (0b010000, x, dist),
-                        ]
-
-                        input_grid[row][col] = Lgca.OBSTACLE_BIT
-
-                        for mask, row_off, col_off in offsets:
-                            if value & mask:
-                                input_grid[row + row_off][col + col_off] = mask
-
-                        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT)
+                        width, height, tile_size, fps = 19, 19, 54, 4
+                        input_grid = generate_test(
+                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
+                        )
 
             case "hpp":
                 match pattern:
-                    case "alt":
-                        width, height, tile_size, fps = 400, 400, 1, -1
-                        input_grid = [[rand_choice(range(16)) for _ in range(width)] for _ in range(height)]
-
-                        for row in range(height - 37 - 90, height - 37):
-                            for col in range(37, 37 + 100):
-                                input_grid[row][col] = 0
-                        frame(grid=input_grid, value=0b1000_0000, size=1)
-                    case "random":
-                        width, height, tile_size, fps = 600, 400, 2, -1
-                        input_grid = [[rand_choice(range(16)) for _ in range(width)] for _ in range(height)]
-
-                        frame(grid=input_grid, value=0b1000_0000)
-                    case "single":
-                        width, height, tile_size, fps = 13, 13, 64, 3
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-
-                        input_grid[height // 2][width // 2 + 0] = value
                     case "obstacle":
-                        width, height, tile_size, fps = 400, 300, 2, -1
-                        input_grid = [
-                            [
-                                rand_choice(range(16)) if col < width // 2 and rand_uniform() < 0.3 else 0
-                                for col in range(width)
-                            ]
-                            for _ in range(height)
-                        ]
-
-                        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
-                        solid_rectangle(
-                            grid=input_grid,
-                            value=Lgca.OBSTACLE_BIT,
-                            height=height // 3,
-                            width=4,
-                            offset={"left": width // 8 + 2, "top": 0},
-                        )
-
+                        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
                     case "test":
                         width, height, tile_size, fps = 17, 17, 54, 4
+                        input_grid = generate_test(
+                            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
+                        )
 
-                        input_grid = [[0 for _ in range(width)] for _ in range(height)]
-                        row, col = height // 2, width // 2
-                        dist = 4
-                        offsets = [
-                            (0b0001, -dist, 0),
-                            (0b0010, 0, -dist),
-                            (0b0100, dist, 0),
-                            (0b1000, 0, dist),
-                        ]
-
-                        if value == 0:
-                            value = 0xF
-
-                        for mask, row_off, col_off in offsets:
-                            if value & mask:
-                                input_grid[row + row_off][col + col_off] = mask
-
-                        if extra_params.get("center", True):
-                            input_grid[row][col] = Lgca.OBSTACLE_BIT
-
-                        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=1)
     else:
         input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
             pattern_file=Path(pattern),
