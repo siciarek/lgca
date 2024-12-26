@@ -64,12 +64,15 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
             (0b1000, 0, dist),
         ]
 
-    if extra_params.get("center", False):
-        input_grid[row][col] = Lgca.OBSTACLE_BIT
     for mask, row_off, col_off in offsets:
         if value & mask:
             input_grid[row + row_off][col + col_off] = mask
+
     frame(grid=input_grid, value=Lgca.OBSTACLE_BIT)
+
+    if extra_params.get("center", False):
+        input_grid[row][col] = Lgca.OBSTACLE_BIT
+
     return input_grid
 
 
