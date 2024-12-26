@@ -158,6 +158,14 @@ def decode_json_callback(ctx, param, value):
     help="Automaton behavior when the particle reaches the edge.",
 )
 @click.option(
+    "-o",
+    "--obstacle-color",
+    default="#440044",
+    type=str,
+    show_default=True,
+    help="Obstacle color.",
+)
+@click.option(
     "-x",
     "--extra-params",
     type=str,
@@ -176,6 +184,7 @@ def main(
     value: str,
     deterministic: bool,
     mode: str,
+    obstacle_color: str,
     extra_params: dict,
 ):
     """
@@ -188,9 +197,7 @@ def main(
 
     model_name: str = model_name.lower()
     value: int = parse_integer_value(value=value)
-
     fps: int = -1
-    obstacle_color: str = "#880000"
 
     if deterministic:
         rand_choice: Callable = random.choice
@@ -212,7 +219,7 @@ def main(
     elif pattern == "obstacle":
         input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
 
-    print(f"{value=} {value=:07b} {extra_params=}")
+    print(f"{model_name=} {pattern=} {value=} {value=:07b} {extra_params=}")
 
     classes = {
         "hpp": (Hpp, SquareGrid),
@@ -220,7 +227,6 @@ def main(
         "fhp_ii": (FhpII, HexagonalGrid),
         "fhp_iii": (FhpIII, HexagonalGrid),
     }
-    automaton_class, grid_class = classes[model_name]
 
     if pattern in {"random", "obstacle", "test"}:
         match model_name:
@@ -250,6 +256,7 @@ def main(
             model_name=model_name,
         )
 
+    automaton_class, grid_class = classes[model_name]
     automaton = automaton_class(grid=input_grid, mode=mode)
     colors = get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color)
     grid_class(
