@@ -35,7 +35,7 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
     input_grid = [[0 for _ in range(width)] for _ in range(height)]
     row, col = height // 2, width // 2
 
-    x = dist - 1
+    x = dist - 2
 
     if model_name in ("fhp_ii", "fhp_iii"):
         offsets = [
@@ -218,7 +218,7 @@ def main(
                     case "obstacle":
                         input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
                     case "test":
-                        width, height, tile_size, fps = 19, 19, 54, 4
+                        width, height, tile_size, fps = 17, 17, 54, 4
                         input_grid = generate_test(
                             model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
                         )
@@ -249,7 +249,7 @@ def main(
                             offset={"left": 100, "top": 0},
                         )
                     case "test":
-                        width, height, tile_size, fps = 19, 19, 54, 4
+                        width, height, tile_size, fps = 17, 17, 54, 4
                         input_grid = generate_test(
                             model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
                         )
@@ -259,7 +259,7 @@ def main(
                     case "obstacle":
                         input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
                     case "test":
-                        width, height, tile_size, fps = 19, 19, 54, 4
+                        width, height, tile_size, fps = 17, 17, 54, 4
                         input_grid = generate_test(
                             model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
                         )
