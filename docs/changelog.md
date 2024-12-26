@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.2.1](https://github.com/siciarek/lgca/releases/tag/0.2.1) - 2024-12-26
+
+<small>[Compare with 0.2.0](https://github.com/siciarek/lgca/compare/0.2.0...0.2.1)</small>
+
+### Features
+
+- add automata image generator gen ([da37d42](https://github.com/siciarek/lgca/commit/da37d42b6533cb856c30f969f78de81da4c6c360) by Jacek Siciarek).
+- start working on automata to bitmap converter ([85b2696](https://github.com/siciarek/lgca/commit/85b26967426492fd2861814c3311a3524706ac09) by Jacek Siciarek).
+
 ## [0.2.0](https://github.com/siciarek/lgca/releases/tag/0.2.0) - 2024-12-25
 
 <small>[Compare with 0.1.10](https://github.com/siciarek/lgca/compare/0.1.10...0.2.0)</small>
