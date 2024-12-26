@@ -41,7 +41,8 @@ def parse_integer_value(value: str) -> int:
 
 
 def get_color_palette(bit_count: int):
-    palette, step, color = [], round(0xFF / bit_count), 0xFF
+    palette: list = []
+    step, color = round(0xFF / bit_count), 0xFF
 
     while len(palette) < bit_count + 1:
         palette.append(f"#{color:02X}{color:02X}{color:02X}")
@@ -59,8 +60,8 @@ def get_color_map(bit_count, reverse: bool = False, obstacle_color: str = "#AA00
     if reverse:
         color_palette.reverse()
 
-    temp_map = defaultdict(dict)
-    color_map = [0] * 256
+    temp_map: defaultdict = defaultdict(dict)
+    color_map: list = [0] * 256
 
     for i in range(2**bit_count):
         tmpl = f"{{value:0{bit_count}b}}"
@@ -68,16 +69,17 @@ def get_color_map(bit_count, reverse: bool = False, obstacle_color: str = "#AA00
         bit_count = i.bit_count()
         temp_map[bit_count][key] = color_palette[bit_count]
 
-    obstacle_color = decode_color(color=obstacle_color)
+    obstacle_color_tuple: tuple[int, int, int] = decode_color(color=obstacle_color)
 
     for _, values in temp_map.items():
         for key, val in values.items():
-            int_key, rgb = int(key, 2), decode_color(color=val)
+            int_key: int = int(key, 2)
+            rgb: tuple[int, int, int] = decode_color(color=val)
             color_map[int_key] = rgb
 
             if not int_key & Lgca.REST_PARTICLE_BIT:
-                obstacle_key = int_key | Lgca.OBSTACLE_BIT
-                color_map[obstacle_key] = tuple([c if c > 0 else rgb[0] for c in obstacle_color])
+                obstacle_key: int = int_key | Lgca.OBSTACLE_BIT
+                color_map[obstacle_key] = tuple(c if c > 0 else rgb[0] for c in obstacle_color_tuple)
 
     while color_map[-1] == 0:
         color_map.pop()
