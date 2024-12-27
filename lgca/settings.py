@@ -1,6 +1,7 @@
 from pathlib import Path
 
 BASE_PATH = Path(__file__).parent.parent
+LGCA_CONFIGURATION_PATH = BASE_PATH / "lgca" / "config"
 
 VON_NEUMANN_NEIGHBORHOOD = {
     "N": (-1, 0),

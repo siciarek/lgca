@@ -4,7 +4,7 @@ from lgca import settings
 
 
 def get_config(name: str):
-    config_file: Path = settings.BASE_PATH / "lgca" / "config" / f"{name}.yaml"
+    config_file: Path = settings.LGCA_CONFIGURATION_PATH / f"{name}.yaml"
     config = yaml.safe_load(config_file.open())
     return {
         **{
