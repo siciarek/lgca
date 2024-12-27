@@ -52,10 +52,10 @@ def generate_animation(fmt: str, source_files: str, target_file: str, fps: int):
         # extract  first image from iterator
         img = next(imgs)
 
-        duration = 50
+        duration = 60
 
         if fps > 0:
-            duration = 10000 / fps
+            duration = 1000 // fps
 
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#gif
         img.save(fp=target_file, format=fmt, append_images=imgs, save_all=True, duration=duration)
