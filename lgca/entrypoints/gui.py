@@ -19,10 +19,8 @@ from lgca.display import (
     HexagonalGrid,
 )
 from lgca.utils.add_shape import (
-    solid_square,
     frame,
     solid_rectangle,
-    solid_circle,
 )
 from lgca.utils.table_generator import BIT_COUNT
 from lgca.utils.common import (
@@ -229,52 +227,26 @@ def main(
 
     print(f"{model_name=} {pattern=} {value=} {value=:07b} {extra_params=}")
 
+    if pattern not in {"random", "obstacle", "test"}:
+        input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
+            pattern_file=Path(pattern),
+            model_name=model_name,
+        )
+
     classes = {
         "hpp": (Hpp, SquareGrid),
         "fhp_i": (FhpI, HexagonalGrid),
         "fhp_ii": (FhpII, HexagonalGrid),
         "fhp_iii": (FhpIII, HexagonalGrid),
     }
-
-    if pattern in {"random", "obstacle", "test"}:
-        match model_name:
-            case "fhp_ii":
-                match pattern:
-                    case "obstacle-bis":
-                        width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_DIE
-
-                        input_grid = [
-                            [
-                                rand_choice(range(2 ** BIT_COUNT[model_name])) if rand_uniform() < 0.08 else 0
-                                for col in range(width)
-                            ]
-                            for _ in range(height)
-                        ]
-
-                        solid_circle(grid=input_grid, value=0, size=height // 5)
-                        solid_square(grid=input_grid, value=127, size=height // 12)
-
-                        solid_rectangle(
-                            grid=input_grid,
-                            value=Lgca.OBSTACLE_BIT,
-                            height=height // 3,
-                            width=4,
-                            offset={"left": 100, "top": 0},
-                        )
-    else:
-        input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
-            pattern_file=Path(pattern),
-            model_name=model_name,
-        )
-
     automaton_class, grid_class = classes[model_name]
     automaton = automaton_class(grid=input_grid, mode=mode)
-    colors = get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color)
+
     grid_class(
         title=f"{Lgca.name} {automaton.name}",
         automaton=automaton,
         tile_size=tile_size,
-        colors=colors,
+        colors=get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color),
         max_iteration=steps,
         run=run,
         fps=fps,

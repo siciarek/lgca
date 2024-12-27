@@ -1,5 +1,6 @@
 {
   "name": "wiki",
+  "reference": "https://en.wikipedia.org/wiki/HPP_model",
   "models": [ "hpp" ],
   "mode": "torus",
   "tile_size": 2,
