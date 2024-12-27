@@ -1,5 +1,6 @@
 import secrets
 import random
+import re
 import json
 from pathlib import Path
 from typing import Callable
@@ -29,6 +30,7 @@ from lgca.utils.common import (
     get_color_map,
     decode_pattern_file,
 )
+from lgca import settings
 
 
 def generate_test(model_name: str, extra_params: dict, height: int, value: int, width: int, dist: int = 4):
@@ -194,6 +196,12 @@ def main(
     [X] FHP II
     [X] FHP III
     """
+
+    obstacle_color_map = json.loads((settings.BASE_PATH / "lgca" / "config" / "colors.json").read_text())
+    obstacle_color = obstacle_color_map.get(obstacle_color, obstacle_color)
+
+    if not re.match(r"#[\dA-Fa-f]{6}", obstacle_color):
+        raise click.ClickException(f"Invalid color name: {obstacle_color!r}")
 
     model_name: str = model_name.lower()
     value: int = parse_integer_value(value=value)

@@ -41,7 +41,7 @@ def generate_frames(
         next(automaton)
 
 
-def generate_animation(fmt: str, source_files: str, target_file: str):
+def generate_animation(fmt: str, source_files: str, target_file: str, fps: int):
     # use exit stack to automatically close opened images
     with contextlib.ExitStack() as stack:
         source_images = sorted(glob.glob(source_files))
@@ -52,8 +52,13 @@ def generate_animation(fmt: str, source_files: str, target_file: str):
         # extract  first image from iterator
         img = next(imgs)
 
+        duration = 50
+
+        if fps > 0:
+            duration = 10000 / fps
+
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#gif
-        img.save(fp=target_file, format=fmt, append_images=imgs, save_all=True, duration=50)
+        img.save(fp=target_file, format=fmt, append_images=imgs, save_all=True, duration=duration)
 
 
 @click.command()
@@ -103,7 +108,7 @@ def main(steps: int, model_name: str, pattern: str, animation: bool):
     if animation is None:
         click.secho(f"CREATE AUTOMATON STAGE ({steps})...", fg="green")
         while True:
-            click.echo(step_tmpl.format(step=automaton.step), end="\r")
+            print(step_tmpl.format(step=automaton.step), end="\r")
             if automaton.step == steps:
                 break
             next(automaton)
@@ -140,6 +145,7 @@ def main(steps: int, model_name: str, pattern: str, animation: bool):
             fmt="GIF",
             source_files=animated_glob_file_tmpl.format(model_name=model_name),
             target_file=target_file,
+            fps=fps,
         )
 
         if animation == "mp4":
