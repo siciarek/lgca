@@ -4,7 +4,6 @@ import re
 import json
 from pathlib import Path
 from typing import Callable
-from functools import partial
 
 import click
 from lgca.automata import (
@@ -29,6 +28,13 @@ from lgca.utils.common import (
     decode_pattern_file,
 )
 from lgca import settings
+
+CLASSES = {
+    "hpp": (Hpp, SquareGrid),
+    "fhp_i": (FhpI, HexagonalGrid),
+    "fhp_ii": (FhpII, HexagonalGrid),
+    "fhp_iii": (FhpIII, HexagonalGrid),
+}
 
 
 def generate_test(model_name: str, extra_params: dict, height: int, value: int, width: int, dist: int = 4):
@@ -201,17 +207,15 @@ def main(
     if not re.match(r"#[\dA-Fa-f]{6}", obstacle_color):
         raise click.ClickException(f"Invalid color name: {obstacle_color!r}")
 
-    model_name: str = model_name.lower()
+    model_name = model_name.lower()
     value: int = parse_integer_value(value=value)
     fps: int = -1
 
     if deterministic:
         rand_choice: Callable = random.choice
-        rand_uniform: partial | Callable = partial(random.uniform, 0, 1)
         random.seed(42)
     else:
         rand_choice: Callable = secrets.choice
-        rand_uniform: partial | Callable = secrets.SystemRandom().random
 
     input_grid: list[list] = [
         [rand_choice(range(2 ** BIT_COUNT[model_name])) for _ in range(width)] for _ in range(height)
@@ -222,26 +226,27 @@ def main(
         input_grid = generate_test(
             model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
         )
+    elif pattern == "hex":
+        width, height, tile_size, fps = 17, 17, 54, 4
+        input_grid = generate_test(
+            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
+        )
     elif pattern == "obstacle":
         input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
 
-    print(f"{model_name=} {pattern=} {value=} {value=:07b} {extra_params=}")
+    click.secho(f"{model_name=} {pattern=} {extra_params=} {value=} value-bin={value=:07b}", fg="yellow")
 
-    if pattern not in {"random", "obstacle", "test"}:
+    if pattern not in {"random", "obstacle", "test", "hex"}:
         input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
             pattern_file=Path(pattern),
             model_name=model_name,
         )
 
-    classes = {
-        "hpp": (Hpp, SquareGrid),
-        "fhp_i": (FhpI, HexagonalGrid),
-        "fhp_ii": (FhpII, HexagonalGrid),
-        "fhp_iii": (FhpIII, HexagonalGrid),
-    }
-    automaton_class, grid_class = classes[model_name]
-    automaton = automaton_class(grid=input_grid, mode=mode)
-
+    automaton_class, grid_class = CLASSES[model_name]
+    automaton = automaton_class(
+        grid=input_grid,
+        mode=mode,
+    )
     grid_class(
         title=f"{Lgca.name} {automaton.name}",
         automaton=automaton,
