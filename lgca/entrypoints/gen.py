@@ -1,4 +1,6 @@
 import glob
+import tempfile
+import shutil
 import subprocess
 from pathlib import Path
 import contextlib
@@ -6,6 +8,7 @@ import numpy as np
 import click
 import ffmpy
 from PIL import Image
+from lgca import settings
 from lgca.automata import (
     Hpp,
 )
@@ -41,7 +44,7 @@ def generate_frames(
         next(automaton)
 
 
-def generate_animation(fmt: str, source_files: str, target_file: str, fps: int):
+def generate_animation(fmt: str, source_files: str, animation_temp_file: str, fps: int):
     # use exit stack to automatically close opened images
     with contextlib.ExitStack() as stack:
         source_images = sorted(glob.glob(source_files))
@@ -58,7 +61,7 @@ def generate_animation(fmt: str, source_files: str, target_file: str, fps: int):
             duration = 1000 // fps
 
         # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#gif
-        img.save(fp=target_file, format=fmt, append_images=imgs, save_all=True, duration=duration)
+        img.save(fp=animation_temp_file, format=fmt, append_images=imgs, save_all=True, duration=duration)
 
 
 @click.command()
@@ -84,12 +87,8 @@ def main(steps: int, model_name: str, pattern: str, animation: bool):
     if not pattern_file.is_file():
         raise click.FileError(pattern_file.as_posix(), "pattern not found.")
 
-    step_tmpl = f"STEP: {{step:0{len(str(steps))}}}"
+    step_tmpl = f"FRAME: {{step:0{len(str(steps))}}}/{steps}"
     file_tmpl = f"{pattern_file.stem}-{{model_name}}-{{step:0{len(str(steps))}}}.png"
-
-    animated_source_file_tmpl = f".animated/{pattern_file.stem}-{{model_name}}-{{step:0{len(str(steps))}}}.png"
-    animated_glob_file_tmpl = f".animated/{pattern_file.stem}-{{model_name}}-*.png"
-    animated_target_file_tmpl = f".animated/{pattern_file.stem}-{{model_name}}.gif"
 
     input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
         pattern_file=pattern_file,
@@ -121,44 +120,66 @@ def main(steps: int, model_name: str, pattern: str, animation: bool):
         img = img.resize(size=[elem * tile_size for elem in img.size], resample=Image.Resampling.NEAREST)
         img.save(file_tmpl.format(model_name=model_name, step=automaton.step))
     else:
-        Path(".animated").mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            animated_dir = Path(tmpdirname)
+            animated_dir.mkdir(parents=True, exist_ok=True)
 
-        click.secho(f"CREATE ANIMATION FRAMES ({steps})...", fg="green")
-        generate_frames(
-            model_name=model_name,
-            input_grid=input_grid,
-            automaton=automaton,
-            tile_size=tile_size,
-            color_map=color_map,
-            steps=steps,
-            animated_source_file_tmpl=animated_source_file_tmpl,
-            step_tmpl=step_tmpl,
-        )
+            animated_source_file_tmpl = (
+                animated_dir / f"{pattern_file.stem}-{{model_name}}-{{step:0{len(str(steps))}}}.png"
+            ).as_posix()
+            animated_glob_file_tmpl = (animated_dir / f"{pattern_file.stem}-{{model_name}}-*.png").as_posix()
+            animated_animation_temp_file_tmpl = (animated_dir / f"{pattern_file.stem}-{{model_name}}.gif").as_posix()
 
-        click.secho(f"CREATE ANIMATED FILE ({animation})...", fg="green")
-        target_file = animated_target_file_tmpl.format(model_name=model_name)
-        target_file_mp4 = target_file.replace(".gif", ".mp4")
-        Path(target_file).unlink(missing_ok=True)
-        Path(target_file_mp4).unlink(missing_ok=True)
+            click.secho(f"CREATE ANIMATION FRAMES ({steps})...", fg="green")
 
-        generate_animation(
-            fmt="GIF",
-            source_files=animated_glob_file_tmpl.format(model_name=model_name),
-            target_file=target_file,
-            fps=fps,
-        )
+            generate_frames(
+                model_name=model_name,
+                input_grid=input_grid,
+                automaton=automaton,
+                tile_size=tile_size,
+                color_map=color_map,
+                steps=steps,
+                animated_source_file_tmpl=animated_source_file_tmpl,
+                step_tmpl=step_tmpl,
+            )
 
-        if animation == "mp4":
-            click.secho("CONVERT gif -> mp4", fg="green")
-            ret_code = subprocess.call(["which", "ffmpeg"])
-            if ret_code == 0:
-                ffmpy.FFmpeg(inputs={target_file: None}, outputs={target_file_mp4: None}).run()
-            else:
-                click.ClickException("Conversion gif -> mp4 requires ffmpeg installed in your system.")
+            click.secho(f"CREATE ANIMATED FILE ({animation})...", fg="green")
+            animation_temp_file = animated_animation_temp_file_tmpl.format(model_name=model_name)
 
-        click.secho("MAKE TIDY...", fg="green")
-        for temp_file in Path(".animated").glob("*.png"):
-            temp_file.unlink()
+            if animation == "gif":
+                animation_target_file = animation_temp_file
+            elif animation == "mp4":
+                animation_target_file = animation_temp_file.replace(".gif", ".mp4")
 
-        if animation == "mp4":
-            Path(target_file).unlink()
+            Path(animation_temp_file).unlink(missing_ok=True)
+            Path(animation_target_file).unlink(missing_ok=True)
+
+            generate_animation(
+                fmt="GIF",
+                source_files=animated_glob_file_tmpl.format(model_name=model_name),
+                animation_temp_file=animation_temp_file,
+                fps=fps,
+            )
+
+            if animation == "gif":
+                animation_target_file = animation_temp_file
+            elif animation == "mp4":
+                click.secho("CONVERT gif -> mp4", fg="green")
+                ret_code = subprocess.call(["which", "ffmpeg"])
+                if ret_code == 0:
+                    ffmpy.FFmpeg(inputs={animation_temp_file: None}, outputs={animation_target_file: None}).run()
+                else:
+                    click.ClickException("Conversion gif -> mp4 requires ffmpeg installed in your system.")
+
+            click.secho("MAKE TIDY...", fg="green")
+
+            for temp_file in animated_dir.glob("*.png"):
+                temp_file.unlink()
+
+            temp_file = settings.BASE_PATH / Path(animation_temp_file).name
+            temp_file.unlink(missing_ok=True)
+
+            temp_file = settings.BASE_PATH / Path(animation_target_file).name.replace(".gif", ".mp4")
+            temp_file.unlink(missing_ok=True)
+
+            shutil.move(animation_target_file, settings.BASE_PATH / Path(animation_target_file).name)
