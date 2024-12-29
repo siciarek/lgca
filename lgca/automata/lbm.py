@@ -1,4 +1,3 @@
-
 import numpy as np
 import math
 
@@ -61,6 +60,7 @@ class Lbm:
         return ux, uy, rho
 
     def __next__(self):
+        self.step += 1
 
         for i, cy, cx in zip(range(self.nl), self.cxs, self.cys):
             self.flow[:, :, i] = np.roll(self.flow[:, :, i], cx, axis=0)
@@ -82,5 +82,3 @@ class Lbm:
         for row in range(self.height):
             for col in range(self.width):
                 self.grid[row][col] = round(0xFF * self.temp_grid[row][col])
-
-        self.step += 1
