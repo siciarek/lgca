@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 import math
 
@@ -13,37 +15,35 @@ class Lbm:
         self.mode = mode
         self.height = len(grid)
         self.width = len(grid[0])
+
+        self.ny = self.height
+        self.nx = self.width
+
         self.tau = 0.53
-
-        self.grid: list = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.temp_grid: list = [[0 for _ in range(self.width)] for _ in range(self.height)]
-
-        # Lattice speeds / weights
-        self.nl = 9
         self.cxs = np.array([0, 0, 1, 1, 1, 0, -1, -1, -1])
         self.cys = np.array([0, 1, 1, 0, -1, -1, -1, 0, 1])
         self.weights = np.array([4 / 9, 1 / 9, 1 / 36, 1 / 9, 1 / 36, 1 / 9, 1 / 36, 1 / 9, 1 / 36])  # sums to 1
+        self.nl = len(self.cxs.tolist())
 
         # Initial conditions
-        self.flow = np.ones((self.width, self.height, self.nl)) + 0.01 * np.random.randn(
-            self.width, self.height, self.nl
-        )
+        flow_shape = (self.nx, self.ny, self.nl)
+        self.flow = np.ones(flow_shape)
+        self.flow += 0.01 * np.random.randn(*flow_shape)
         self.flow[:, :, 3] = 2.3
 
         # create cylinder
-        self.cylinder = np.full((self.width, self.height), False)
-
-        for y in range(0, self.width):
-            for x in range(0, self.height):
-                if math.dist((self.height // 4, self.width // 2), (x, y)) < 13:
-                    self.cylinder[y][x] = True
+        self.cylinder = np.full((self.nx, self.ny), False)
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                if math.dist((self.width // 2, self.height // 4), (x, y)) < 13:
+                    self.cylinder[x][y] = True
 
         self.grid: list = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.temp_grid: list = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.temp_grid: list = deepcopy(self.grid)
 
         ux, uy, rho = self.update_fluid_variables()
 
-        self.temp_grid = np.sqrt(ux**2 + uy**2)
+        self.temp_grid = np.sqrt(ux**2 + uy**2).tolist()
         for row in range(self.height):
             for col in range(self.width):
                 self.grid[row][col] = round(0xFF * self.temp_grid[col][row])
@@ -79,7 +79,7 @@ class Lbm:
 
         self.flow -= (1.0 / self.tau) * (self.flow - flow_equilibrium)
 
-        self.temp_grid = np.sqrt(ux**2 + uy**2)
+        self.temp_grid = np.sqrt(ux**2 + uy**2).tolist()
         for row in range(self.height):
             for col in range(self.width):
                 self.grid[row][col] = round(0xFF * self.temp_grid[col][row])

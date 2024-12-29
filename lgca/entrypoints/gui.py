@@ -206,10 +206,16 @@ def main(
 ):
     """
     Lattice Gas Cellular Automata
+
     [X] HPP
+
     [X] FHP I
+
     [X] FHP II
+
     [X] FHP III
+
+    [X] LBM
     """
 
     obstacle_color_map = json.loads((settings.BASE_PATH / "lgca" / "config" / "colors.json").read_text())
