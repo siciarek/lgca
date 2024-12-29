@@ -12,6 +12,7 @@ from lgca.automata import (
     FhpI,
     FhpII,
     FhpIII,
+    Lbm,
 )
 from lgca.display import (
     SquareGrid,
@@ -20,6 +21,7 @@ from lgca.display import (
 from lgca.utils.add_shape import (
     frame,
     solid_rectangle,
+    arbitrary_single_point,
 )
 from lgca.utils.table_generator import BIT_COUNT
 from lgca.utils.common import (
@@ -34,6 +36,7 @@ CLASSES = {
     "fhp_i": (FhpI, HexagonalGrid),
     "fhp_ii": (FhpII, HexagonalGrid),
     "fhp_iii": (FhpIII, HexagonalGrid),
+    "lbm": (Lbm, SquareGrid),
 }
 
 
@@ -83,6 +86,12 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
 
 
 def generate_obstacle(model_name: str, density: float = 0.3):
+    if model_name == "lbm":
+        width, height, tile_size, fps, mode = 300, 100, 2, -1, Lgca.MODE_TORUS
+        input_grid = [[0 for _ in range(height)] for _ in range(width)]
+
+        return input_grid, width, height, tile_size, fps, mode
+
     width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
 
     input_grid = [
@@ -121,14 +130,11 @@ def decode_json_callback(ctx, param, value):
     "--model-name",
     type=click.Choice(
         [
-            "HPP",
-            "FHP_I",
-            "FHP_II",
-            "FHP_III",
             "hpp",
             "fhp_i",
             "fhp_ii",
             "fhp_iii",
+            "lbm",
         ]
     ),
     show_default=True,
@@ -226,21 +232,27 @@ def main(
         input_grid = generate_test(
             model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
         )
-    elif pattern == "hex":
-        width, height, tile_size, fps = 17, 17, 54, 4
-        input_grid = generate_test(
-            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
-        )
+    elif pattern == "single":
+        width, height, tile_size, fps = 17, 17, 54, 7
+        input_grid = [[0 for row in range(width)] for row in range(height)]
+        frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=2)
+        arbitrary_single_point(grid=input_grid, row=-3, col=10, value=value)
     elif pattern == "obstacle":
         input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
 
     click.secho(f"{model_name=} {pattern=} {extra_params=} {value=} value-bin={value=:07b}", fg="yellow")
 
-    if pattern not in {"random", "obstacle", "test", "hex"}:
+    if pattern not in {"random", "obstacle", "test", "single"}:
         input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
             pattern_file=Path(pattern),
             model_name=model_name,
         )
+
+    colors = (
+        ([(i * 2 % 0xFF, i * 2 % 0xFF, i * 2 % 0xFF) for i in range(0x100)])
+        if model_name == "lbm"
+        else get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color)
+    )
 
     automaton_class, grid_class = CLASSES[model_name]
     automaton = automaton_class(
@@ -251,7 +263,7 @@ def main(
         title=f"{Lgca.name} {automaton.name}",
         automaton=automaton,
         tile_size=tile_size,
-        colors=get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color),
+        colors=colors,
         max_iteration=steps,
         run=run,
         fps=fps,

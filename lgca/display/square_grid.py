@@ -10,7 +10,6 @@ class SquareGrid(BaseGrid):
         self.window: pygame.Surface = pygame.display.set_mode(size=(width * self.tile_size, height * self.tile_size))
 
     def draw_grid(self) -> None:
-
         # Convert automaton grid to bitmap.
         pixel_array: pygame.PixelArray = pygame.PixelArray(self.screen)
         for y, row in enumerate(self.automaton.grid):

@@ -23,6 +23,7 @@ class BaseGrid:
         max_iteration: int = -1,
         colors: tuple = ("#000000", "#ffffff"),
         background: str | tuple[tuple[int, int, int]] = "#000000",
+        display_every: int = 1,
     ):
         self.title = title
         self.animate: bool = run
@@ -33,6 +34,7 @@ class BaseGrid:
         self.tile_size = tile_size
         self.colors = colors
         self.background = background
+        self.display_every = display_every
 
         self.set_up_window()
 
@@ -40,7 +42,8 @@ class BaseGrid:
         if 0 < self.max_iteration < self.automaton.step:
             return
 
-        self.draw_grid()
+        if self.automaton.step % self.display_every == 0:
+            self.draw_grid()
 
         if self.animate:
             next(self.automaton)
