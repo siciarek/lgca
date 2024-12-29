@@ -24,9 +24,9 @@ class Lgca(ABC):
         self.mode = mode
 
     def __next__(self):
+        self.step += 1
         self.collision()
         self.free_translation()
-        self.step += 1
 
     def collision(self):
         for row in range(self.height):
