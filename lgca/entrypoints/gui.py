@@ -87,8 +87,8 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
 
 def generate_obstacle(model_name: str, density: float = 0.3):
     if model_name == "lbm":
-        width, height, tile_size, fps, mode = 300, 100, 2, -1, Lgca.MODE_TORUS
-        input_grid = [[0 for _ in range(height)] for _ in range(width)]
+        width, height, tile_size, fps, mode = 400, 100, 4, -1, Lgca.MODE_TORUS
+        input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
         return input_grid, width, height, tile_size, fps, mode
 
@@ -260,7 +260,7 @@ def main(
         )
 
     colors = (
-        ([(i * 2 % 0xFF, i * 2 % 0xFF, i * 2 % 0xFF) for i in range(0x100)])
+        ([(i, i * 2 % 0xFF, i) for i in range(0x100)])
         if model_name == "lbm"
         else get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color)
     )

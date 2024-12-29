@@ -1,4 +1,3 @@
-from copy import deepcopy
 
 import numpy as np
 import math
@@ -26,27 +25,27 @@ class Lbm:
         self.nl = len(self.cxs.tolist())
 
         # Initial conditions
-        flow_shape = (self.nx, self.ny, self.nl)
+        flow_shape = (self.height, self.width, self.nl)
         self.flow = np.ones(flow_shape)
         self.flow += 0.01 * np.random.randn(*flow_shape)
         self.flow[:, :, 3] = 2.3
 
-        # create cylinder
-        self.cylinder = np.full((self.nx, self.ny), False)
-        for y in range(0, self.height):
-            for x in range(0, self.width):
-                if math.dist((self.width // 2, self.height // 4), (x, y)) < 13:
-                    self.cylinder[x][y] = True
+        cylinder = []
+        for row in range(self.height):
+            cylinder.append([False] * self.width)
+            for col in range(self.width):
+                cylinder[row][col] = math.dist((self.height // 2, self.width // 4), (row, col)) < 13
+
+        self.cylinder = np.array(cylinder)
 
         self.grid: list = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.temp_grid: list = deepcopy(self.grid)
-
         ux, uy, rho = self.update_fluid_variables()
 
         self.temp_grid = np.sqrt(ux**2 + uy**2).tolist()
+
         for row in range(self.height):
             for col in range(self.width):
-                self.grid[row][col] = round(0xFF * self.temp_grid[col][row])
+                self.grid[row][col] = round(0xFF * self.temp_grid[row][col])
 
     def update_fluid_variables(self):
         boundary_f = self.flow[self.cylinder, :]
@@ -82,6 +81,6 @@ class Lbm:
         self.temp_grid = np.sqrt(ux**2 + uy**2).tolist()
         for row in range(self.height):
             for col in range(self.width):
-                self.grid[row][col] = round(0xFF * self.temp_grid[col][row])
+                self.grid[row][col] = round(0xFF * self.temp_grid[row][col])
 
         self.step += 1
