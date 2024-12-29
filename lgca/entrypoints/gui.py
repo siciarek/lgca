@@ -130,6 +130,11 @@ def decode_json_callback(ctx, param, value):
     "--model-name",
     type=click.Choice(
         [
+            "HPP",
+            "FHP_I",
+            "FHP_II",
+            "FHP_III",
+            "LBM",
             "hpp",
             "fhp_i",
             "fhp_ii",
