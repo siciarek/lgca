@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.4.1](https://github.com/siciarek/lgca/releases/tag/0.4.1) - 2024-12-30
+
+<small>[Compare with 0.4.0](https://github.com/siciarek/lgca/compare/0.4.0...0.4.1)</small>
+
+### Bug Fixes
+
+- unittest coverage ([db64757](https://github.com/siciarek/lgca/commit/db64757db90d282174f76bd74ecf4f16fbe633dc) by Jacek Siciarek).
+
+### Chore
+
+- bump up the version to 0.4.1 ([0691154](https://github.com/siciarek/lgca/commit/0691154c47f60480accea60ce2363db0786f2adc) by Jacek Siciarek).
+
 ## [0.4.0](https://github.com/siciarek/lgca/releases/tag/0.4.0) - 2024-12-30
 
 <small>[Compare with 0.2.2](https://github.com/siciarek/lgca/compare/0.2.2...0.4.0)</small>
