@@ -19,14 +19,17 @@ class Lgca(ABC):
         self.height: int = len(self.grid)
         self.width: int = len(self.grid[0])
         self.step: int = 0
-        self.temp_grid = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.lookup_table = get_config(self.name.replace(" ", "_").lower())
         self.mode = mode
+        self.prepare()
 
     def __next__(self):
         self.step += 1
         self.collision()
         self.free_translation()
+
+    def prepare(self):
+        self.temp_grid = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.lookup_table = get_config(self.name.replace(" ", "_").lower())
 
     def collision(self):
         for row in range(self.height):
