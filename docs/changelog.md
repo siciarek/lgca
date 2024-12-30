@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 
 <!-- insertion marker -->
+## [0.4.0](https://github.com/siciarek/lgca/releases/tag/0.4.0) - 2024-12-30
+
+<small>[Compare with 0.2.2](https://github.com/siciarek/lgca/compare/0.2.2...0.4.0)</small>
+
+### Bug Fixes
+
+- fps in wiki-hpp=simulation ([5afb9c4](https://github.com/siciarek/lgca/commit/5afb9c41725d5790ddd2d67a98a3134fb29cbf6a) by Jacek Siciarek).
+- update configuration ([77e1a46](https://github.com/siciarek/lgca/commit/77e1a46a9b4961635aac7f966c1d015ed68dbff8) by Jacek Siciarek).
+- collisions with obstacles in fhp automata ([99b4754](https://github.com/siciarek/lgca/commit/99b475499cc1c08da2cff046941c72ced447bc54) by Jacek Siciarek).
+- set up gif animation to not loop ([d703e3b](https://github.com/siciarek/lgca/commit/d703e3b27396c8dc640223a67e09e3e5bf131a8e) by Jacek Siciarek).
+- update unittest code coverage, bump up the version to 0.2.3 ([86dbf0c](https://github.com/siciarek/lgca/commit/86dbf0c8da8b4b186a23c6cdb788a6c47ddeabd9) by Jacek Siciarek).
+
+### Features
+
+- adjust generator to create LBM animations ([1e10102](https://github.com/siciarek/lgca/commit/1e10102dfa11d0e639c455487d12348a202d7656) by Jacek Siciarek).
+- update lbm ([9791ba9](https://github.com/siciarek/lgca/commit/9791ba925c375ba3621f201978903785df2746bf) by Jacek Siciarek).
+- lbm first draft ([25f972d](https://github.com/siciarek/lgca/commit/25f972d0f75f8fb38d0c912c5a18e3eb5534ac4c) by Jacek Siciarek).
+- update entrypoint log output ([78aad7a](https://github.com/siciarek/lgca/commit/78aad7ab296312205b7360b76b356fac4a8031f0) by Jacek Siciarek).
+- setup fps parameter for animation generation ([554297d](https://github.com/siciarek/lgca/commit/554297d6c8a5a6b805587aa7d32853c74fb4bb97) by Jacek Siciarek).
+- add css color names available for obstacle color ([7d544d5](https://github.com/siciarek/lgca/commit/7d544d51f24682667455b41158ed903e3082fb84) by Jacek Siciarek).
+- start working on pointy top hexagonal grids ([2a078b3](https://github.com/siciarek/lgca/commit/2a078b34547d88899ed37fda4d5a0a30f8441699) by Jacek Siciarek).
+
+### Chore
+
+- bump up the version to 0.4.0 ([198864a](https://github.com/siciarek/lgca/commit/198864a573ac5df22faa0aa5d51f482739c5949b) by Jacek Siciarek).
+- make tidy ([bf762df](https://github.com/siciarek/lgca/commit/bf762df03ba2b43f8e2d8225f558bbe9fbc0cb94) by Jacek Siciarek).
+- reformat hexagon lib ([fea68bb](https://github.com/siciarek/lgca/commit/fea68bbc42c085ce775bd8b5ef8f5f4f13d6d0e4) by Jacek Siciarek).
+
 ## [0.2.2](https://github.com/siciarek/lgca/releases/tag/0.2.2) - 2024-12-26
 
 <small>[Compare with 0.2.1](https://github.com/siciarek/lgca/compare/0.2.1...0.2.2)</small>
