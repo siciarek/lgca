@@ -1,4 +1,5 @@
 import numpy as np
+from lgca.automata import Lgca
 
 
 class Lbm:
@@ -6,7 +7,7 @@ class Lbm:
 
     name: str = "LBM"
 
-    def __init__(self, grid: list, mode: str):
+    def __init__(self, grid: list, mode: str = Lgca.MODE_TORUS):
         self.step = 0
 
         self.mode = mode
