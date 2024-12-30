@@ -7,7 +7,7 @@ BIT_COUNT: dict = {
     "fhp_i": 6,
     "fhp_ii": 7,
     "fhp_iii": 7,
-    "lbm": 9,
+    # "lbm": 9,
 }
 
 

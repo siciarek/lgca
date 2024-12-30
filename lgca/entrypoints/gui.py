@@ -92,7 +92,7 @@ def generate_obstacle(model_name: str, density: float = 0.3):
 
     if model_name == "lbm":
         display_every = 20
-        width, height, tile_size, fps, mode = 400, 100, 4, -1, Lgca.MODE_TORUS
+        width, height, tile_size, fps, mode = 400, 100, 2, -1, Lgca.MODE_TORUS
         input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
         solid_circle(grid=input_grid, size=26, col_offset=-width // 4, value=Lgca.OBSTACLE_BIT)
@@ -243,7 +243,8 @@ def main(
         rand_choice: Callable = secrets.choice
 
     input_grid: list[list] = [
-        [rand_choice(range(2 ** BIT_COUNT[model_name])) for _ in range(width)] for _ in range(height)
+        [rand_choice(range(2 ** BIT_COUNT[model_name])) if model_name not in ("lbm",) else 0 for _ in range(width)]
+        for _ in range(height)
     ]
 
     if pattern == "test":
