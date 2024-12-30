@@ -1,5 +1,4 @@
 import numpy as np
-import math
 
 
 class Lbm:
@@ -11,6 +10,7 @@ class Lbm:
         self.step = 0
 
         self.mode = mode
+        self.grid = grid
         self.height = len(grid)
         self.width = len(grid[0])
 
@@ -27,22 +27,18 @@ class Lbm:
         self.flow += 0.01 * np.random.randn(*flow_shape)
         self.flow[:, :, 3] = 2.3
 
-        cylinder = []
-        for row in range(self.height):
-            cylinder.append([False] * self.width)
-            for col in range(self.width):
-                cylinder[row][col] = math.dist((self.height // 2, self.width // 4), (row, col)) < 13
+        # create obstacle
+        obstacle = [[self.grid[row][col] != 0 for col in range(self.width)] for row in range(self.height)]
+        self.cylinder = np.array(obstacle)
 
-        self.cylinder = np.array(cylinder)
+        ux, uy, _ = self.update_fluid_variables()
+        self.update_grid(ux=ux, uy=uy)
 
-        self.grid: list = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        ux, uy, rho = self.update_fluid_variables()
-
-        self.temp_grid = np.sqrt(ux ** 2 + uy ** 2).tolist()
-
+    def update_grid(self, ux, uy):
+        temp_grid = np.sqrt(ux**2 + uy**2).tolist()
         for row in range(self.height):
             for col in range(self.width):
-                self.grid[row][col] = round(0xFF * self.temp_grid[row][col])
+                self.grid[row][col] = round(0xFF * temp_grid[row][col])
 
     def update_fluid_variables(self):
         boundary_f = self.flow[self.cylinder, :]
@@ -71,13 +67,9 @@ class Lbm:
         flow_equilibrium = np.zeros(self.flow.shape)
         for i, cx, cy, w in zip(range(self.nl), self.cxs, self.cys, self.weights):
             flow_equilibrium[:, :, i] = (
-                    rho * w * (
-                        1 + 3 * (cx * ux + cy * uy) + 9 * (cx * ux + cy * uy) ** 2 / 2 - 3 * (ux ** 2 + uy ** 2) / 2)
+                rho * w * (1 + 3 * (cx * ux + cy * uy) + 9 * (cx * ux + cy * uy) ** 2 / 2 - 3 * (ux**2 + uy**2) / 2)
             )
 
         self.flow -= (1.0 / self.tau) * (self.flow - flow_equilibrium)
 
-        self.temp_grid = np.sqrt(ux ** 2 + uy ** 2).tolist()
-        for row in range(self.height):
-            for col in range(self.width):
-                self.grid[row][col] = round(0xFF * self.temp_grid[row][col])
+        self.update_grid(ux=ux, uy=uy)

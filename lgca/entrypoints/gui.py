@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable
 
 import click
+
 from lgca.automata import (
     Lgca,
     Hpp,
@@ -22,6 +23,7 @@ from lgca.utils.add_shape import (
     frame,
     solid_rectangle,
     arbitrary_single_point,
+    solid_circle,
 )
 from lgca.utils.table_generator import BIT_COUNT
 from lgca.utils.common import (
@@ -86,11 +88,16 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
 
 
 def generate_obstacle(model_name: str, density: float = 0.3):
+    display_every = 1
+
     if model_name == "lbm":
+        display_every = 20
         width, height, tile_size, fps, mode = 400, 100, 4, -1, Lgca.MODE_TORUS
         input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
-        return input_grid, width, height, tile_size, fps, mode
+        solid_circle(grid=input_grid, size=26, col_offset=-width // 4, value=Lgca.OBSTACLE_BIT)
+
+        return display_every, input_grid, width, height, tile_size, fps, mode
 
     width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
 
@@ -115,7 +122,7 @@ def generate_obstacle(model_name: str, density: float = 0.3):
         offset={"left": width // 8 + 2, "top": 0},
     )
 
-    return input_grid, width, height, tile_size, fps, mode
+    return display_every, input_grid, width, height, tile_size, fps, mode
 
 
 def decode_json_callback(ctx, param, value):
@@ -227,6 +234,7 @@ def main(
     model_name = model_name.lower()
     value: int = parse_integer_value(value=value)
     fps: int = -1
+    display_every: int = 30
 
     if deterministic:
         rand_choice: Callable = random.choice
@@ -249,7 +257,7 @@ def main(
         frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=2)
         arbitrary_single_point(grid=input_grid, row=-3, col=10, value=value)
     elif pattern == "obstacle":
-        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
+        display_every, input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
 
     click.secho(f"{model_name=} {pattern=} {extra_params=} {value=} value-bin={value=:07b}", fg="yellow")
 
@@ -278,4 +286,5 @@ def main(
         max_iteration=steps,
         run=run,
         fps=fps,
+        display_every=display_every,
     ).mainloop()
