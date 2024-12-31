@@ -30,7 +30,7 @@ def get_info(grid: list[list[int]]) -> dict:
     }
 
 
-def arbitrary_single_point(grid: list, row: int, col: int, value: int = 1):
+def arbitrary_single_point(grid: list, row: int, col: int, value: int | str = 1):
     grid[row][col] = value
 
 

@@ -1,12 +1,12 @@
 from math import sqrt, ceil, floor
 import pygame
-from lgca.vendor.hexagons import Hex, Layout, Point, layout_flat, layout_pointy, polygon_corners
+from lgca.vendor.hexagons import Hex, Layout, Orientation, Point, layout_flat, polygon_corners
 from . import BaseGrid
 
 
 class HexagonalGrid(BaseGrid):
 
-    def set_up_window(self, layout: Layout = layout_flat) -> None:
+    def set_up_window(self, layout: Orientation = layout_flat) -> None:
         height, width = len(self.automaton.grid), len(self.automaton.grid[0])
 
         width_margin = -self.tile_size // 2

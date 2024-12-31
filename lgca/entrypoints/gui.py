@@ -48,6 +48,8 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
 
     x = dist - 2
 
+    offsets = []
+
     if model_name in ("fhp_ii", "fhp_iii"):
         offsets = [
             (0b0000100, -dist, 0),
@@ -88,16 +90,13 @@ def generate_test(model_name: str, extra_params: dict, height: int, value: int, 
 
 
 def generate_obstacle(model_name: str, density: float = 0.3):
-    display_every = 1
-
     if model_name == "lbm":
-        display_every = 20
         width, height, tile_size, fps, mode = 400, 100, 2, -1, Lgca.MODE_TORUS
         input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
         solid_circle(grid=input_grid, size=26, col_offset=-width // 4, value=Lgca.OBSTACLE_BIT)
 
-        return display_every, input_grid, width, height, tile_size, fps, mode
+        return input_grid, width, height, tile_size, fps, mode
 
     width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
 
@@ -122,14 +121,17 @@ def generate_obstacle(model_name: str, density: float = 0.3):
         offset={"left": width // 8 + 2, "top": 0},
     )
 
-    return display_every, input_grid, width, height, tile_size, fps, mode
+    return input_grid, width, height, tile_size, fps, mode
 
 
-def decode_json_callback(ctx, param, value):
+def decode_json_callback(ctx, param, value):  # pylint: disable=unused-argument
     return json.loads(value) if value is not None else None
 
 
 @click.command()
+@click.option(
+    "-e", "--select-every", default=1, show_default=True, help="Select only frames after specified number of steps."
+)
 @click.option("-v", "--value", type=str, default="0", show_default=True, help="Content value.")
 @click.option("-t", "--tile-size", type=int, default=2, show_default=True, help="Grid tile size.")
 @click.option(
@@ -203,6 +205,7 @@ def main(
     tile_size: int,
     model_name: str,
     steps: int,
+    select_every: int,
     run: bool,
     pattern: str,
     value: str,
@@ -232,15 +235,14 @@ def main(
         raise click.ClickException(f"Invalid color name: {obstacle_color!r}")
 
     model_name = model_name.lower()
-    value: int = parse_integer_value(value=value)
+    decoded_value: int = parse_integer_value(value=value)
     fps: int = -1
-    display_every: int = 30
 
-    if deterministic:
-        rand_choice: Callable = random.choice
-        random.seed(42)
-    else:
-        rand_choice: Callable = secrets.choice
+    rand_choice: Callable = random.choice
+    random.seed(42)
+
+    if not deterministic:
+        rand_choice = secrets.choice
 
     input_grid: list[list] = [
         [rand_choice(range(2 ** BIT_COUNT[model_name])) if model_name not in ("lbm",) else 0 for _ in range(width)]
@@ -250,7 +252,7 @@ def main(
     if pattern == "test":
         width, height, tile_size, fps = 17, 17, 54, 4
         input_grid = generate_test(
-            model_name=model_name, extra_params=extra_params, width=width, height=height, value=value
+            model_name=model_name, extra_params=extra_params, width=width, height=height, value=decoded_value
         )
     elif pattern == "single":
         width, height, tile_size, fps = 17, 17, 54, 7
@@ -258,9 +260,11 @@ def main(
         frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=2)
         arbitrary_single_point(grid=input_grid, row=-3, col=10, value=value)
     elif pattern == "obstacle":
-        display_every, input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
+        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
 
-    click.secho(f"{model_name=} {pattern=} {extra_params=} {value=} value-bin={value=:07b}", fg="yellow")
+    click.secho(
+        f"{model_name=} {pattern=} {extra_params=} {decoded_value=} value-bin={decoded_value=:07b}", fg="yellow"
+    )
 
     if pattern not in {"random", "obstacle", "test", "single"}:
         input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
@@ -287,5 +291,5 @@ def main(
         max_iteration=steps,
         run=run,
         fps=fps,
-        display_every=display_every,
+        select_every=select_every,
     ).mainloop()

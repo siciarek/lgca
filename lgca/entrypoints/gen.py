@@ -1,7 +1,6 @@
 import glob
 import tempfile
 import shutil
-import subprocess
 from pathlib import Path
 import contextlib
 import numpy as np
@@ -31,12 +30,12 @@ def generate_frames(
     steps: int,
     animated_source_file_tmpl: str,
     step_tmpl: str,
-    save_every: int,
+    select_every: int,
 ):
     while True:
         bitmap_array: list = []
 
-        if automaton.step % save_every == 0:
+        if automaton.step % select_every == 0:
             for row in input_grid:
                 bitmap_array.append([color_map[cell] for cell in row])
 
@@ -75,7 +74,7 @@ def generate_animation(fmt: str, source_files: str, animation_temp_file: str, fp
 @click.command()
 @click.option("-s", "--steps", default=0, show_default=True, help="Number of steps.")
 @click.option(
-    "-e", "--save-every", default=1, show_default=True, help="In animation save every specified number of steps."
+    "-e", "--select-every", default=1, show_default=True, help="Select only frames after specified number of steps."
 )
 @click.option(
     "-n",
@@ -94,20 +93,10 @@ def generate_animation(fmt: str, source_files: str, animation_temp_file: str, fp
     help="Select initial state pattern.",
 )
 @click.option("-a", "--animation", type=click.Choice(["gif", "mp4"]), show_default=True, help="Animated file format.")
-def main(steps: int, save_every: int, model_name: str, pattern: str, animation: bool):
+def main(steps: int, select_every: int, model_name: str, pattern: str, animation: bool):
     """Generate image of LGCA."""
 
-    """
-    PERFORMANCE:
-    (Mon Dec 30 13:15:38 CET 2024)
-    time gen -n lbm -p lgca/data/patterns/lbm/obstacle.json --animation=mp4 --save-every=30 --steps=10000
-    119.13s user
-    7.34s system
-    107% cpu
-    1:57.92 total
-    """
-
-    click.echo(f"{model_name=} {save_every=}, {pattern=} {steps=} {animation=}")
+    click.echo(f"{model_name=} {select_every=}, {pattern=} {steps=} {animation=}")
 
     pattern_file = Path(pattern)
     if not pattern_file.is_file():
@@ -162,6 +151,15 @@ def main(steps: int, save_every: int, model_name: str, pattern: str, animation: 
                 animated_dir / f"{pattern_file.stem}-{{model_name}}-{steps}.gif"
             ).as_posix()
 
+            animation_temp_file = animated_animation_temp_file_tmpl.format(model_name=model_name)
+            animation_target_file = animation_temp_file
+
+            if animation == "mp4":
+                if shutil.which("ffmpeg") is None:
+                    click.ClickException("Conversion gif -> mp4 requires ffmpeg installed in your system.")
+
+                animation_target_file = animation_temp_file.replace(".gif", ".mp4")
+
             click.secho(f"CREATE ANIMATION FRAMES ({steps})...", fg="green")
 
             generate_frames(
@@ -173,16 +171,10 @@ def main(steps: int, save_every: int, model_name: str, pattern: str, animation: 
                 steps=steps,
                 animated_source_file_tmpl=animated_source_file_tmpl,
                 step_tmpl=step_tmpl,
-                save_every=save_every,
+                select_every=select_every,
             )
 
             click.secho(f"CREATE ANIMATED FILE ({animation})...", fg="green")
-            animation_temp_file = animated_animation_temp_file_tmpl.format(model_name=model_name)
-
-            if animation == "gif":
-                animation_target_file = animation_temp_file
-            elif animation == "mp4":
-                animation_target_file = animation_temp_file.replace(".gif", ".mp4")
 
             Path(animation_temp_file).unlink(missing_ok=True)
             Path(animation_target_file).unlink(missing_ok=True)
@@ -194,15 +186,12 @@ def main(steps: int, save_every: int, model_name: str, pattern: str, animation: 
                 fps=fps,
             )
 
-            if animation == "gif":
-                animation_target_file = animation_temp_file
-            elif animation == "mp4":
+            if animation == "mp4":
                 click.secho("CONVERT gif -> mp4", fg="green")
-                ret_code = subprocess.call(["which", "ffmpeg"])
-                if ret_code == 0:
-                    ffmpy.FFmpeg(inputs={animation_temp_file: None}, outputs={animation_target_file: None}).run()
-                else:
-                    click.ClickException("Conversion gif -> mp4 requires ffmpeg installed in your system.")
+                ffmpy.FFmpeg(
+                    inputs={animation_temp_file: None},
+                    outputs={animation_target_file: None},
+                ).run()
 
             click.secho("MAKE TIDY...", fg="green")
 
