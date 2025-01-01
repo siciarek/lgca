@@ -3,10 +3,11 @@
 This project focuses on the declarative implementation of the popular *Lattice Gas Cellular Automata* listed below.
 Models with checked names are implemented and ready to use.
 
-* [X] HPP
-* [X] FHP I
-* [X] FHP II
-* [X] FHP III
+* [X] HPP (Hardy, Pomeau & Pazzis)
+* [X] FHP I (Frisch, Hasslacher & Pomeau I)
+* [X] FHP II (Frisch, Hasslacher & Pomeau II)
+* [X] FHP III (Frisch, Hasslacher & Pomeau III)
+* [X] LBM (Lattice Boltzmann methods)
 
 Currently, all the models are fully implemented, so feel free to test them.
 
