@@ -42,7 +42,8 @@ CLASSES = {
 }
 
 
-def generate_test(model_name: str, extra_params: dict, height: int, value: int, width: int, dist: int = 4):
+def generate_test(model_name: str, extra_params: dict, size: tuple[int, int], value: int, dist: int = 4):
+    width, height = size
     input_grid = [[0 for _ in range(width)] for _ in range(height)]
     row, col = height // 2, width // 2
 
@@ -252,7 +253,7 @@ def main(
     if pattern == "test":
         width, height, tile_size, fps = 17, 17, 54, 4
         input_grid = generate_test(
-            model_name=model_name, extra_params=extra_params, width=width, height=height, value=decoded_value
+            model_name=model_name, extra_params=extra_params, size=(width, height), value=decoded_value
         )
     elif pattern == "single":
         width, height, tile_size, fps = 17, 17, 54, 7
@@ -263,7 +264,8 @@ def main(
         input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
 
     click.secho(
-        f"{model_name=} {pattern=} {extra_params=} {decoded_value=} value-bin={decoded_value=:07b}", fg="yellow"
+        f"{model_name=} " f"{pattern=} " f"value={decoded_value} " f"value-bin={decoded_value:07b} " f"{extra_params=}",
+        fg="yellow",
     )
 
     if pattern not in {"random", "obstacle", "test", "single"}:
@@ -287,7 +289,7 @@ def main(
         title=f"{Lgca.name} {automaton.name}",
         automaton=automaton,
         tile_size=tile_size,
-        colors=colors,
+        colors=tuple(colors),
         max_iteration=steps,
         run=run,
         fps=fps,
