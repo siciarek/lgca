@@ -3,6 +3,7 @@ import yaml
 import pytest
 from lgca import settings
 from lgca.utils.config_loader import get_config
+from lgca.automata import Lgca
 
 models = (
     ("hpp", 16, 16, 2),
@@ -17,6 +18,10 @@ def test_collisions(name, state_count, obstacle_rule_count, collision_count):
     config_file: Path = settings.BASE_PATH / "lgca" / "config" / "collisions.yaml"
     config = yaml.safe_load(config_file.open())
     assert len(config[name]) == collision_count
+
+    xconfig = get_config(name=name)
+    assert len([key for key in xconfig.keys() if key < Lgca.OBSTACLE_BIT]) == state_count
+    assert len([key for key in xconfig.keys() if key >= Lgca.OBSTACLE_BIT]) == obstacle_rule_count
 
 
 @pytest.mark.parametrize("name,state_count,obstacle_rule_count,collision_count", models)

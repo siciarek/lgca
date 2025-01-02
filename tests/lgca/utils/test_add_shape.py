@@ -39,13 +39,15 @@ line_horizontal_input_dat, line_horizontal_expected_dat = get_test_data("shapes/
 line_horizontal_data_provider = ((line_horizontal_input_dat[0], line_horizontal_expected_dat[0], 9, 0, 0, 8),)
 
 line_vertical_input_dat, line_vertical_expected_dat = get_test_data("shapes/line_vertical")
-line_vertical_data_provider = ((line_vertical_input_dat[0], line_vertical_expected_dat[0], 1, 0, 0, 8),)
+line_vertical_data_provider = (
+    (line_vertical_input_dat[0], line_vertical_expected_dat[0], 1, len(line_vertical_input_dat[0]) // 2, 0, 8),
+)
 
 
 @pytest.mark.parametrize("input_grid,expected,value,col,row_start,row_end", line_vertical_data_provider)
 def test_line_vertical(input_grid, expected, value, col, row_start, row_end):
     grid = deepcopy(input_grid)
-    add_shape.line_vertical(grid=grid, value=value, col=len(grid) // 2, row_start=row_start, row_end=row_end)
+    add_shape.line_vertical(grid=grid, value=value, col=col, row_start=row_start, row_end=row_end)
 
     assert grid == expected
 

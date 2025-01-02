@@ -1,6 +1,6 @@
 import re
-import pytest
 import csv
+import pytest
 import yaml
 from lgca import settings
 from lgca.utils.table_generator import BIT_COUNT, generate_lookup_table, get_collisions

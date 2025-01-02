@@ -3,9 +3,9 @@ from tests.helpers import get_test_data
 
 
 def test_general():
-    width = 9
-    height = 9
-    steps = 5
+    width = 19
+    height = 19
+    steps = 15
 
     input_grid = [[0 for _ in range(width)] for _ in range(height)]
     input_grid[height // 2][width // 2] = 0b100100
