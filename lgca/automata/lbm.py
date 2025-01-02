@@ -4,7 +4,9 @@ from lgca.automata import Lgca
 from lgca.enums import Velocity
 
 np.random.seed(42)
-random.seed(43)
+random.seed(42)
+
+# https://sci-hub.se/10.1103/physrevlett.61.2332
 
 
 class Lbm(Lgca):
