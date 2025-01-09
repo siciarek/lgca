@@ -32,7 +32,7 @@ def generate_lookup_table(name: str) -> dict:
     lookup_table: dict = {}
 
     for i in range(2**bits):
-        template = "{value:0" + str(bits) + "b}"
+        template = f"{{value:0{bits}b}}"
         key = template.format(value=i)
         temp_table[i.bit_count()][key] = collisions.get(key, key)
 

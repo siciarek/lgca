@@ -90,6 +90,7 @@ The above command should display the *HPP model* visualization, identical to the
 * [Frisch, U., d'Humières, D., Hasslacher, B., Lallemand, P., Pomeau, Y., & Rivet, J. (1987). Lattice Gas Hydrodynamics in Two and Three Dimensions. Complex Syst., 1.](https://content.wolfram.com/sites/13/2018/02/01-4-7.pdf)
 * [Wylie, B.J. (1990). Application of two-dimensional cellular automaton lattice-gas models to the simulation of hydrodynamics.](https://pages.cs.wisc.edu/~wylie/doc/PhD_thesis.pdf)
 * [Buick, J.M. (1997). Lattice Boltzmann methods in interfacial wave modelling.](https://era.ed.ac.uk/bitstream/handle/1842/10845/Buick1997.pdf)
+* [Wolf-Gladrow, D.A. (2000). Lattice-Gas Cellular Automata and Lattice Boltzmann Models: An Introduction.](https://sci-hub.se/10.1007/b72010)
 
 ## Status
 

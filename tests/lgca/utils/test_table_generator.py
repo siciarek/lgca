@@ -15,7 +15,7 @@ models = (
 
 @pytest.mark.parametrize("name", models)
 def test_generate_lookup_table(name: str):
-    expected = yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / f"{name}.yaml").open())["particle"]
+    expected = yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / f"{name}.yaml").open())
 
     lookup_table = generate_lookup_table(name=name)
     assert isinstance(lookup_table, dict)
@@ -24,7 +24,7 @@ def test_generate_lookup_table(name: str):
 
 def test_validate_fhp_iii_lookup_table(name="fhp_iii"):
     """Validation against the lookup table form Buick PHD dissertation."""
-    expected = yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / f"{name}.yaml").open())["particle"]
+    expected = yaml.safe_load((settings.BASE_PATH / "lgca" / "config" / f"{name}.yaml").open())
 
     lookup_table = generate_lookup_table(name=name)
     assert isinstance(lookup_table, dict)

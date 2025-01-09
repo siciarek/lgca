@@ -229,6 +229,7 @@ def main(
     [X] LBM
     """
 
+    reverse_color_map = False
     obstacle_color_map = json.loads((settings.BASE_PATH / "lgca" / "config" / "colors.json").read_text())
     obstacle_color = obstacle_color_map.get(obstacle_color, obstacle_color)
 
@@ -263,6 +264,33 @@ def main(
     elif pattern == "obstacle":
         input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
 
+    if model_name == "hpp" and pattern == "test":
+        width, height, tile_size, fps = 400, 400, 1, -1
+        small = width // 10
+        reverse_color_map = False
+        input_grid = [
+            [rand_choice(range(1, 2 ** BIT_COUNT[model_name])) for row in range(width)] for row in range(height)
+        ]
+        value = 0  # 2 ** BIT_COUNT[model_name] - 1
+        solid_rectangle(
+            grid=input_grid, width=small, height=small, value=value, offset={"left": -2 * small, "top": 2 * small}
+        )
+
+    # if model_name.startswith("fhp") and pattern == "test":
+    #     width, height,  tile_size, fps = 600, 300, 2, -1
+    #     input_grid = [[0 for row in range(width)] for row in range(height)]
+    #     solid_rectangle(grid=input_grid, value=0b1111111,
+    #                     width=width // 3, height=height//3)
+    #
+
+    # width, height, tile_size, fps = 600 // 2, 350 // 2, 2, -1
+    # reverse_color_map = True
+    #
+    # value = 2 ** BIT_COUNT[model_name] - 1
+    # solid_circle(input_grid, size=100 // 3, value=value)
+    #
+    #
+
     click.secho(
         f"{model_name=} " f"{pattern=} " f"value={decoded_value} " f"value-bin={decoded_value:07b} " f"{extra_params=}",
         fg="yellow",
@@ -277,7 +305,7 @@ def main(
     colors = (
         ([(i, i * 2 % 0xFF, i) for i in range(0x100)])
         if model_name == "lbm"
-        else get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color)
+        else get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color, reverse=reverse_color_map)
     )
 
     automaton_class, grid_class = CLASSES[model_name]
