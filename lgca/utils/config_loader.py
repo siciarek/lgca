@@ -8,7 +8,8 @@ def get_config(name: str):
     particle_config: dict = yaml.safe_load(particle_config_file.open())
 
     obstacle_config_file: Path = settings.LGCA_CONFIGURATION_PATH / "obstacles" / "wall.yaml"
-    obstacle_config: dict = yaml.safe_load(obstacle_config_file.open()).get(name.split("_")[0])
+    temp: dict = yaml.safe_load(obstacle_config_file.open())
+    obstacle_config = temp.get(name) if name in temp else temp.get(name.split("_")[0])
 
     return {
         **{

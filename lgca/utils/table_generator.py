@@ -25,7 +25,7 @@ def generate_lookup_table(name: str) -> dict:
     if name not in BIT_COUNT:
         raise AttributeError(f"Name {name!r} is not supported, only {list(BIT_COUNT.keys())} are valid.")
 
-    collisions: dict = get_collisions(name)
+    collisions: dict = get_collisions(name=name)
     bits: int = BIT_COUNT[name]
 
     temp_table: defaultdict = defaultdict(dict)
@@ -34,7 +34,7 @@ def generate_lookup_table(name: str) -> dict:
     for i in range(2**bits):
         template = f"{{value:0{bits}b}}"
         key = template.format(value=i)
-        temp_table[i.bit_count()][key] = collisions.get(key, key)
+        temp_table[i.bit_count()][key] = collisions.get(key, [key])
 
     for _, values in temp_table.items():
         for key, val in values.items():

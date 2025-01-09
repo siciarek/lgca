@@ -34,11 +34,8 @@ class Lgca(ABC):
     def collision(self):
         for row in range(self.height):
             for col in range(self.width):
-                result = self.lookup_table[self.grid[row][col]]
-                if isinstance(result, list):
-                    result = secrets.choice(result)
-
-                self.temp_grid[row][col] = result
+                result: list = self.lookup_table[self.grid[row][col]]
+                self.temp_grid[row][col] = secrets.choice(result) if len(result) > 1 else result[0]
 
     def free_translation(self) -> None:
         for row in range(self.height):

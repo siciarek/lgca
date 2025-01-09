@@ -109,6 +109,7 @@ def main(steps: int, select_every: int, model_name: str, pattern: str, animation
         pattern_file=pattern_file,
         model_name=model_name,
     )
+
     color_map = (
         ([(i, i * 2 % 0xFF, i) for i in range(0x100)])
         if model_name == "lbm"

@@ -30,7 +30,7 @@ def test_get_config(name, state_count, obstacle_rule_count, collision_count):
     assert isinstance(config, dict)
     particle_rules = {key: val for key, val in config.items() if key < 128}
     obstacle_rules = {key: val for key, val in config.items() if key >= 128}
-    collision_rules = {key: val for key, val in particle_rules.items() if key != val}
+    collision_rules = {key: val for key, val in particle_rules.items() if key != val[0]}
     assert len(particle_rules) == state_count, particle_rules
     assert len(obstacle_rules) == obstacle_rule_count, obstacle_rules
     assert len(collision_rules) == collision_count, collision_rules
