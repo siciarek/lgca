@@ -15,7 +15,7 @@ from lgca.automata import (
     FhpIII,
     Lbm,
 )
-from lgca.display import (
+from cellular_automata_grids.grids import (
     SquareGrid,
     HexagonalGrid,
 )
