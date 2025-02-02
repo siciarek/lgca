@@ -18,6 +18,7 @@ from lgca.automata import (
 from cellular_automata_grids.grids import (
     SquareGrid,
     HexagonalGrid,
+    TerminalSquareGrid,
 )
 from lgca.utils.add_shape import (
     frame,
@@ -34,7 +35,7 @@ from lgca.utils.common import (
 from lgca import settings
 
 CLASSES = {
-    "hpp": (Hpp, SquareGrid),
+    "hpp": (Hpp, TerminalSquareGrid),
     "fhp_i": (FhpI, HexagonalGrid),
     "fhp_ii": (FhpII, HexagonalGrid),
     "fhp_iii": (FhpIII, HexagonalGrid),
@@ -90,7 +91,7 @@ def generate_test(model_name: str, extra_params: dict, size: tuple[int, int], va
     return input_grid
 
 
-def generate_obstacle(model_name: str, density: float = 0.3):
+def generate_obstacle(model_name: str, width, height, density: float = 0.3):
     if model_name == "lbm":
         width, height, tile_size, fps, mode = 400, 100, 2, -1, Lgca.MODE_TORUS
         input_grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -99,7 +100,7 @@ def generate_obstacle(model_name: str, density: float = 0.3):
 
         return input_grid, width, height, tile_size, fps, mode
 
-    width, height, tile_size, fps, mode = 400, 300, 2, -1, Lgca.MODE_TORUS
+    width, height, tile_size, fps, mode = width, height, 2, -1, Lgca.MODE_TORUS
 
     input_grid = [
         [
@@ -156,8 +157,6 @@ def decode_json_callback(ctx, param, value):  # pylint: disable=unused-argument
     default="HPP",
     help="Model name.",
 )
-@click.option("-w", "--width", default=300, show_default=True, help="Lattice window width.")
-@click.option("-h", "--height", default=200, show_default=True, help="Lattice window height.")
 @click.option("-s", "--steps", default=-1, show_default=True, help="Number of steps.")
 @click.option("-r", "--run", is_flag=True, default=False, show_default=True, help="Run immediately.")
 @click.option(
@@ -200,6 +199,8 @@ def decode_json_callback(ctx, param, value):  # pylint: disable=unused-argument
     callback=decode_json_callback,
     help="Extra parameters provided to the application.",
 )
+@click.option("-w", "--width", default=400, show_default=True, help="Lattice window width.")
+@click.option("-h", "--height", default=300, show_default=True, help="Lattice window height.")
 def main(
     width: int,
     height: int,
@@ -238,7 +239,7 @@ def main(
 
     model_name = model_name.lower()
     decoded_value: int = parse_integer_value(value=value)
-    fps: int = -1
+    fps: int = 10
 
     rand_choice: Callable = random.choice
     random.seed(42)
@@ -262,7 +263,9 @@ def main(
         frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=2)
         arbitrary_single_point(grid=input_grid, row=-3, col=10, value=value)
     elif pattern == "obstacle":
-        input_grid, width, height, tile_size, fps, mode = generate_obstacle(model_name=model_name)
+        input_grid, width, height, tile_size, fps, mode = generate_obstacle(
+            model_name=model_name, width=width, height=height
+        )
 
     if model_name == "hpp" and pattern == "test":
         width, height, tile_size, fps = 400, 400, 1, -1
@@ -276,23 +279,9 @@ def main(
             grid=input_grid, width=small, height=small, value=value, offset={"left": -2 * small, "top": 2 * small}
         )
 
-    # if model_name.startswith("fhp") and pattern == "test":
-    #     width, height,  tile_size, fps = 600, 300, 2, -1
-    #     input_grid = [[0 for row in range(width)] for row in range(height)]
-    #     solid_rectangle(grid=input_grid, value=0b1111111,
-    #                     width=width // 3, height=height//3)
-    #
-
-    # width, height, tile_size, fps = 600 // 2, 350 // 2, 2, -1
-    # reverse_color_map = True
-    #
-    # value = 2 ** BIT_COUNT[model_name] - 1
-    # solid_circle(input_grid, size=100 // 3, value=value)
-    #
-    #
 
     click.secho(
-        f"{model_name=} " f"{pattern=} " f"value={decoded_value} " f"value-bin={decoded_value:07b} " f"{extra_params=}",
+        f"{model_name=} {width=}, {height=}, {pattern=} value={decoded_value} value-bin={decoded_value:07b} {extra_params=}",
         fg="yellow",
     )
 

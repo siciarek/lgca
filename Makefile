@@ -2,22 +2,21 @@ test:
 	. .venv/bin/activate && pytest
 
 install: prepare_setup
-	python -m pip install "."
+	. .venv/bin/activate && python -m pip install "."
 	@echo APPLICATION INSTALLED SUCCESSFULLY
 
 reset_dev: prepare_setup install_dev
 
 install_dev:
-	python -m pip install -e ".[dev]"
-	pre-commit install
+	. .venv/bin/activate && python -m pip install -e ".[dev]"
+	. .venv/bin/activate && pre-commit install
 	@echo DEV SETUP COMPLETED SUCCESSFULLY
 
 prepare_setup: clean
 	-deactivate
 	rm -rvf .venv .tox
 	python -m venv .venv
-	. .venv/bin/activate
-	python -m pip install --upgrade pip setuptools wheel build twine
+	. .venv/bin/activate && python -m pip install --upgrade pip setuptools wheel build twine
 
 clean:
 	rm -rvf site htmlcov coverage-reports .coverage* dist build *.egg-info *.whl
