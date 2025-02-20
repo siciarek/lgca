@@ -1,5 +1,6 @@
 from lgca import settings
 from lgca.automata import Lgca
+from lgca.automata.lgca_faster import LgcaFaster as Lgca
 
 
 class Hpp(Lgca):

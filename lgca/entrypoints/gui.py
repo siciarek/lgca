@@ -1,3 +1,4 @@
+import os
 import secrets
 import random
 import re
@@ -35,7 +36,7 @@ from lgca.utils.common import (
 from lgca import settings
 
 CLASSES = {
-    "hpp": (Hpp, TerminalSquareGrid),
+    "hpp": (Hpp, TerminalSquareGrid if bool(int(os.getenv("HPP_TERMINAL", "0"))) else SquareGrid),
     "fhp_i": (FhpI, HexagonalGrid),
     "fhp_ii": (FhpII, HexagonalGrid),
     "fhp_iii": (FhpIII, HexagonalGrid),
@@ -93,14 +94,14 @@ def generate_test(model_name: str, extra_params: dict, size: tuple[int, int], va
 
 def generate_obstacle(model_name: str, width, height, density: float = 0.3):
     if model_name == "lbm":
-        width, height, tile_size, fps, mode = 400, 100, 2, -1, Lgca.MODE_TORUS
+        width, height, cell_size, fps, mode = 400, 100, 2, -1, Lgca.MODE_TORUS
         input_grid = [[0 for _ in range(width)] for _ in range(height)]
 
         solid_circle(grid=input_grid, size=26, col_offset=-width // 4, value=Lgca.OBSTACLE_BIT)
 
-        return input_grid, width, height, tile_size, fps, mode
+        return input_grid, width, height, cell_size, fps, mode
 
-    width, height, tile_size, fps, mode = width, height, 2, -1, Lgca.MODE_TORUS
+    width, height, cell_size, fps, mode = width, height, 2, -1, Lgca.MODE_TORUS
 
     input_grid = [
         [
@@ -114,7 +115,7 @@ def generate_obstacle(model_name: str, width, height, density: float = 0.3):
         for _ in range(height)
     ]
 
-    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=tile_size)
+    frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=cell_size)
     solid_rectangle(
         grid=input_grid,
         value=Lgca.OBSTACLE_BIT,
@@ -123,7 +124,7 @@ def generate_obstacle(model_name: str, width, height, density: float = 0.3):
         offset={"left": width // 8 + 2, "top": 0},
     )
 
-    return input_grid, width, height, tile_size, fps, mode
+    return input_grid, width, height, cell_size, fps, mode
 
 
 def decode_json_callback(ctx, param, value):  # pylint: disable=unused-argument
@@ -135,7 +136,7 @@ def decode_json_callback(ctx, param, value):  # pylint: disable=unused-argument
     "-e", "--select-every", default=1, show_default=True, help="Select only frames after specified number of steps."
 )
 @click.option("-v", "--value", type=str, default="0", show_default=True, help="Content value.")
-@click.option("-t", "--tile-size", type=int, default=2, show_default=True, help="Grid tile size.")
+@click.option("-t", "--cell-size", type=int, default=4, show_default=True, help="Grid cell size.")
 @click.option(
     "-n",
     "--model-name",
@@ -199,12 +200,12 @@ def decode_json_callback(ctx, param, value):  # pylint: disable=unused-argument
     callback=decode_json_callback,
     help="Extra parameters provided to the application.",
 )
-@click.option("-w", "--width", default=400, show_default=True, help="Lattice window width.")
-@click.option("-h", "--height", default=300, show_default=True, help="Lattice window height.")
+@click.option("-w", "--width", default=1400, show_default=True, help="Lattice window width.")
+@click.option("-h", "--height", default=1300, show_default=True, help="Lattice window height.")
 def main(
     width: int,
     height: int,
-    tile_size: int,
+    cell_size: int,
     model_name: str,
     steps: int,
     select_every: int,
@@ -220,15 +221,13 @@ def main(
     Lattice Gas Cellular Automata
 
     [X] HPP
-
     [X] FHP I
-
     [X] FHP II
-
     [X] FHP III
-
     [X] LBM
     """
+
+    cols, rows = width // cell_size, height // cell_size
 
     reverse_color_map = False
     obstacle_color_map = json.loads((settings.BASE_PATH / "lgca" / "config" / "colors.json").read_text())
@@ -239,7 +238,7 @@ def main(
 
     model_name = model_name.lower()
     decoded_value: int = parse_integer_value(value=value)
-    fps: int = 10
+    fps: int = -1
 
     rand_choice: Callable = random.choice
     random.seed(42)
@@ -253,22 +252,22 @@ def main(
     ]
 
     if pattern == "test":
-        width, height, tile_size, fps = 17, 17, 54, 4
+        width, height, cell_size, fps = 17, 17, 54, 4
         input_grid = generate_test(
             model_name=model_name, extra_params=extra_params, size=(width, height), value=decoded_value
         )
     elif pattern == "single":
-        width, height, tile_size, fps = 17, 17, 54, 7
+        width, height, cell_size, fps = 17, 17, 54, 7
         input_grid = [[0 for row in range(width)] for row in range(height)]
         frame(grid=input_grid, value=Lgca.OBSTACLE_BIT, size=2)
         arbitrary_single_point(grid=input_grid, row=-3, col=10, value=value)
     elif pattern == "obstacle":
-        input_grid, width, height, tile_size, fps, mode = generate_obstacle(
-            model_name=model_name, width=width, height=height
+        input_grid, width, height, cell_size, fps, mode = generate_obstacle(
+            model_name=model_name, width=cols, height=rows
         )
 
     if model_name == "hpp" and pattern == "test":
-        width, height, tile_size, fps = 400, 400, 1, -1
+        width, height, cell_size, fps = 400, 400, 1, -1
         small = width // 10
         reverse_color_map = False
         input_grid = [
@@ -279,14 +278,13 @@ def main(
             grid=input_grid, width=small, height=small, value=value, offset={"left": -2 * small, "top": 2 * small}
         )
 
-
     click.secho(
         f"{model_name=} {width=}, {height=}, {pattern=} value={decoded_value} value-bin={decoded_value:07b} {extra_params=}",
         fg="yellow",
     )
 
     if pattern not in {"random", "obstacle", "test", "single"}:
-        input_grid, tile_size, mode, fps, obstacle_color = decode_pattern_file(
+        input_grid, cell_size, mode, fps, obstacle_color = decode_pattern_file(
             pattern_file=Path(pattern),
             model_name=model_name,
         )
@@ -297,15 +295,25 @@ def main(
         else get_color_map(bit_count=BIT_COUNT[model_name], obstacle_color=obstacle_color, reverse=reverse_color_map)
     )
 
+    fps = 60
     automaton_class, grid_class = CLASSES[model_name]
     automaton = automaton_class(
         grid=input_grid,
         mode=mode,
     )
+
+    # count = 100
+    #
+    # for i in range(1, count + 1):
+    #     print(f"{i:03d}/{count}", end="\r")
+    #     next(automaton)
+    # print()
+    # return
+
     grid_class(
         title=f"{Lgca.name} {automaton.name}",
         automaton=automaton,
-        tile_size=tile_size,
+        tile_size=cell_size,
         colors=tuple(colors),
         max_iteration=steps,
         run=run,
